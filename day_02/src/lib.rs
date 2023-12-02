@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -119,7 +121,22 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented");
+        let res = self
+            .games
+            .iter()
+            .map(|game| {
+                let minimum = game
+                    .grabs
+                    .iter()
+                    .fold(Handful::default(), |one, other| Handful {
+                        red: max(one.red, other.red),
+                        green: max(one.green, other.green),
+                        blue: max(one.blue, other.blue),
+                    });
+                minimum.red * minimum.green * minimum.blue
+            })
+            .sum();
+        Ok(res)
     }
 }
 
