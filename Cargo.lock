@@ -48,6 +48,7 @@ name = "day_01"
 version = "0.1.0"
 dependencies = [
  "prelude 0.1.0",
+ "regex",
 ]
 
 [[package]]

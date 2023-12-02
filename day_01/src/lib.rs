@@ -6,6 +6,8 @@ pub struct Solution {
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
+        init();
+
         Solution {
             passwords: input.lines().map(str::to_owned).collect_vec(),
         }
@@ -29,6 +31,36 @@ impl Solution {
     }
 
     pub fn part2(&self) -> u64 {
-        42
+        let re = Regex::new("one|two|three|four|five|six|seven|eight|nine|zero").unwrap();
+        let modified_passwords = self
+            .passwords
+            .iter()
+            .map(|p| {
+                re.replace(p, |capture: &regex::Captures<'_>| match capture.get(0) {
+                    Some(m) => match m.as_str() {
+                        "one" => "1",
+                        "two" => "2",
+                        "three" => "3",
+                        "four" => "4",
+                        "five" => "5",
+                        "six" => "6",
+                        "seven" => "7",
+                        "eight" => "8",
+                        "nine" => "9",
+                        "ten" => "10",
+                        x => panic!("ran on unexpected group: {:?}", x),
+                    },
+                    None => panic!("zeroth capture is guaranteed to exist"),
+                })
+                .into_owned()
+            })
+            .collect_vec();
+        
+        log::debug!("{:?}", modified_passwords);
+
+        Solution {
+            passwords: modified_passwords,
+        }
+        .part1()
     }
 }
