@@ -88,15 +88,34 @@ impl Handful {
     }
 }
 
-pub struct Solution {}
+pub struct Solution {
+    games: Vec<Game>,
+}
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        Solution {}
+        let games = input
+            .lines()
+            .map(|line| Game::parse(line).unwrap().1)
+            .collect();
+        Solution { games }
     }
 
     pub fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented");
+        let res =
+            self.games
+                .iter()
+                .filter_map(|game| {
+                    if game.grabs.iter().all(|handful| {
+                        handful.red <= 12 && handful.green <= 13 && handful.blue <= 14
+                    }) {
+                        Some(game.id)
+                    } else {
+                        None
+                    }
+                })
+                .sum();
+        Ok(res)
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {

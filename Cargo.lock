@@ -124,6 +124,7 @@ name = "omnibus"
 version = "0.1.0"
 dependencies = [
  "day_01",
+ "day_02",
  "js-sys",
  "wasm-bindgen",
  "web-sys",
