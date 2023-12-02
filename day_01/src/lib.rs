@@ -18,8 +18,8 @@ impl Solution {
             .iter()
             .map(|p| {
                 let p = p.as_bytes();
-                let first = *p.iter().find(|b| b.is_ascii_digit()).unwrap();
-                let last = *p.iter().rev().find(|b| b.is_ascii_digit()).unwrap();
+                let first = *p.iter().find(|b| b.is_ascii_digit()).unwrap_or(&b'0');
+                let last = *p.iter().rev().find(|b| b.is_ascii_digit()).unwrap_or(&b'0');
                 let number = [first, last];
                 let number =
                     std::str::from_utf8(&number).expect("two ASCII digits must be valid UTF-8");
@@ -33,8 +33,8 @@ impl Solution {
     pub fn part2(&self) -> u64 {
         self.passwords
             .iter()
-            .map(|p| {
-                let p = p.as_bytes();
+            .map(|p_str| {
+                let p = p_str.as_bytes();
                 let rev_p = p.iter().cloned().rev().collect_vec();
 
                 let first = p
@@ -60,7 +60,7 @@ impl Solution {
                         }
                     })
                     .next()
-                    .unwrap();
+                    .unwrap_or(b'0');
 
                 let last = rev_p
                     .iter()
@@ -70,7 +70,7 @@ impl Solution {
                             return Some(*c);
                         }
 
-                        match &p[i..] {
+                        match &rev_p[i..] {
                             x if x.starts_with(b"orez") => Some(b'0'),
                             x if x.starts_with(b"eno") => Some(b'1'),
                             x if x.starts_with(b"owt") => Some(b'2'),
@@ -85,11 +85,12 @@ impl Solution {
                         }
                     })
                     .next()
-                    .unwrap();
+                    .unwrap_or(b'0');
 
                 let number = [first, last];
                 let number =
                     std::str::from_utf8(&number).expect("two ASCII digits must be valid UTF-8");
+                log::debug!("password {} -> digits {}", p_str, number);
                 number
                     .parse::<u64>()
                     .expect("two ASCII digits should parse as a u64 successfully")
