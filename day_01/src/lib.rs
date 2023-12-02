@@ -31,8 +31,7 @@ impl Solution {
     }
 
     pub fn part2(&self) -> u64 {
-        self
-            .passwords
+        self.passwords
             .iter()
             .map(|p| {
                 let p = p.as_bytes();
@@ -94,6 +93,7 @@ impl Solution {
                 number
                     .parse::<u64>()
                     .expect("two ASCII digits should parse as a u64 successfully")
-            }).sum()
+            })
+            .sum()
     }
 }
