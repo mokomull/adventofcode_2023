@@ -7,9 +7,20 @@ use nom::{
 };
 use prelude::*;
 
+#[derive(Debug, PartialEq)]
 struct Game {
     id: u64,
     grabs: Vec<Handful>,
+}
+
+impl Game {
+    fn parse(input: &str) -> IResult<&str, Game> {
+        let (input, _) = tag("Game ")(input)?;
+        let (input, id) = u64(input)?;
+        let (input, _) = tag(": ")(input)?;
+        let (input, grabs) = separated_list1(tag("; "), Handful::parse)(input)?;
+        Ok((input, Game { id, grabs }))
+    }
 }
 
 #[derive(Debug, Default, PartialEq)]
@@ -95,7 +106,7 @@ impl Solution {
 
 #[cfg(test)]
 mod test {
-    use crate::Handful;
+    use super::*;
 
     #[test]
     fn parse_handful() {
@@ -107,5 +118,34 @@ mod test {
                 green: 0
             }
         );
+    }
+
+    #[test]
+    fn parse_game() {
+        assert_eq!(
+            Game::parse("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green")
+                .unwrap()
+                .1,
+            Game {
+                id: 1,
+                grabs: vec![
+                    Handful {
+                        red: 4,
+                        green: 0,
+                        blue: 3
+                    },
+                    Handful {
+                        red: 1,
+                        green: 2,
+                        blue: 6
+                    },
+                    Handful {
+                        red: 0,
+                        green: 2,
+                        blue: 0
+                    },
+                ]
+            }
+        )
     }
 }
