@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use prelude::*;
 
 pub struct Solution {
@@ -13,27 +14,34 @@ impl Solution {
         }
     }
 
-    pub fn part1(&self) -> u64 {
+    pub fn part1(&self) -> anyhow::Result<u64> {
         self.passwords
             .iter()
-            .map(|p| {
+            .map(|p| -> anyhow::Result<_> {
                 let p = p.as_bytes();
-                let first = *p.iter().find(|b| b.is_ascii_digit()).unwrap_or(&b'0');
-                let last = *p.iter().rev().find(|b| b.is_ascii_digit()).unwrap_or(&b'0');
+                let first = *p
+                    .iter()
+                    .find(|b| b.is_ascii_digit())
+                    .ok_or_else(|| anyhow!("could not find first digit"))?;
+                let last = *p
+                    .iter()
+                    .rev()
+                    .find(|b| b.is_ascii_digit())
+                    .ok_or_else(|| anyhow!("could not find last digit"))?;
                 let number = [first, last];
                 let number =
-                    std::str::from_utf8(&number).expect("two ASCII digits must be valid UTF-8");
+                    std::str::from_utf8(&number).context("two ASCII digits must be valid UTF-8")?;
                 number
                     .parse::<u64>()
-                    .expect("two ASCII digits should parse as a u64 successfully;e")
+                    .context("two ASCII digits should parse as a u64 successfully")
             })
             .sum()
     }
 
-    pub fn part2(&self) -> u64 {
+    pub fn part2(&self) -> anyhow::Result<u64> {
         self.passwords
             .iter()
-            .map(|p_str| {
+            .map(|p_str| -> anyhow::Result<_> {
                 let p = p_str.as_bytes();
                 let rev_p = p.iter().cloned().rev().collect_vec();
 
@@ -60,7 +68,7 @@ impl Solution {
                         }
                     })
                     .next()
-                    .unwrap_or(b'0');
+                    .ok_or_else(|| anyhow!("could not find first digit"))?;
 
                 let last = rev_p
                     .iter()
@@ -85,15 +93,15 @@ impl Solution {
                         }
                     })
                     .next()
-                    .unwrap_or(b'0');
+                    .ok_or_else(|| anyhow!("could not find last digit"))?;
 
                 let number = [first, last];
                 let number =
-                    std::str::from_utf8(&number).expect("two ASCII digits must be valid UTF-8");
+                    std::str::from_utf8(&number).context("two ASCII digits must be valid UTF-8")?;
                 log::debug!("password {} -> digits {}", p_str, number);
                 number
                     .parse::<u64>()
-                    .expect("two ASCII digits should parse as a u64 successfully")
+                    .context("two ASCII digits should parse as a u64 successfully")
             })
             .sum()
     }

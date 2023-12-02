@@ -38,8 +38,27 @@ layout: default
     document.getElementById("runbutton").addEventListener("click", function() {
         var solution = Day{{ page.title }}.new(document.getElementById("input").value);
 
-        document.getElementById("part1").innerText = solution.part1();
-        document.getElementById("part2").innerText = solution.part2();
+        var part1 = document.getElementById("part1");
+        try {
+            part1.innerText = solution.part1();
+        } catch (e) {
+            part1.textContent = "";
+            var error = document.createElement("span");
+            error.className = "error";
+            error.innerText = e;
+            part1.appendChild(error);
+        }
+
+        var part2 = document.getElementById("part2");
+        try {
+            part2.innerText = solution.part2();
+        } catch (e) {
+            part2.textContent = "";
+            var error = document.createElement("span");
+            error.className = "error";
+            error.innerText = e;
+            part2.appendChild(error);
+        }
     })
   </script>
 </article>

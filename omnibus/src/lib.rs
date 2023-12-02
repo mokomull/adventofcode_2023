@@ -11,12 +11,12 @@ macro_rules! common_day {
                 Self($krate::Solution::new(input))
             }
 
-            pub fn part1(&self) -> $part1_result {
-                self.0.part1()
+            pub fn part1(&self) -> Result<$part1_result, JsValue> {
+                self.0.part1().map_err(|e| JsValue::from(e.to_string()))
             }
 
-            pub fn part2(&self) -> $part2_result {
-                self.0.part2()
+            pub fn part2(&self) -> Result<$part2_result, JsValue> {
+                self.0.part2().map_err(|e| JsValue::from(e.to_string()))
             }
         }
     };
