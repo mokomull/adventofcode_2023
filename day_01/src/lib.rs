@@ -31,36 +31,69 @@ impl Solution {
     }
 
     pub fn part2(&self) -> u64 {
-        let re = Regex::new("one|two|three|four|five|six|seven|eight|nine|zero").unwrap();
-        let modified_passwords = self
+        self
             .passwords
             .iter()
             .map(|p| {
-                re.replace(p, |capture: &regex::Captures<'_>| match capture.get(0) {
-                    Some(m) => match m.as_str() {
-                        "one" => "1",
-                        "two" => "2",
-                        "three" => "3",
-                        "four" => "4",
-                        "five" => "5",
-                        "six" => "6",
-                        "seven" => "7",
-                        "eight" => "8",
-                        "nine" => "9",
-                        "ten" => "10",
-                        x => panic!("ran on unexpected group: {:?}", x),
-                    },
-                    None => panic!("zeroth capture is guaranteed to exist"),
-                })
-                .into_owned()
-            })
-            .collect_vec();
-        
-        log::debug!("{:?}", modified_passwords);
+                let p = p.as_bytes();
+                let rev_p = p.iter().cloned().rev().collect_vec();
 
-        Solution {
-            passwords: modified_passwords,
-        }
-        .part1()
+                let first = p
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(i, c)| {
+                        if c.is_ascii_digit() {
+                            return Some(*c);
+                        }
+
+                        match &p[i..] {
+                            x if x.starts_with(b"zero") => Some(b'0'),
+                            x if x.starts_with(b"one") => Some(b'1'),
+                            x if x.starts_with(b"two") => Some(b'2'),
+                            x if x.starts_with(b"three") => Some(b'3'),
+                            x if x.starts_with(b"four") => Some(b'4'),
+                            x if x.starts_with(b"five") => Some(b'5'),
+                            x if x.starts_with(b"six") => Some(b'6'),
+                            x if x.starts_with(b"seven") => Some(b'7'),
+                            x if x.starts_with(b"eight") => Some(b'8'),
+                            x if x.starts_with(b"nine") => Some(b'9'),
+                            _ => None,
+                        }
+                    })
+                    .next()
+                    .unwrap();
+
+                let last = rev_p
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(i, c)| {
+                        if c.is_ascii_digit() {
+                            return Some(*c);
+                        }
+
+                        match &p[i..] {
+                            x if x.starts_with(b"orez") => Some(b'0'),
+                            x if x.starts_with(b"eno") => Some(b'1'),
+                            x if x.starts_with(b"owt") => Some(b'2'),
+                            x if x.starts_with(b"eerht") => Some(b'3'),
+                            x if x.starts_with(b"ruof") => Some(b'4'),
+                            x if x.starts_with(b"evif") => Some(b'5'),
+                            x if x.starts_with(b"xis") => Some(b'6'),
+                            x if x.starts_with(b"neves") => Some(b'7'),
+                            x if x.starts_with(b"thgie") => Some(b'8'),
+                            x if x.starts_with(b"enin") => Some(b'9'),
+                            _ => None,
+                        }
+                    })
+                    .next()
+                    .unwrap();
+
+                let number = [first, last];
+                let number =
+                    std::str::from_utf8(&number).expect("two ASCII digits must be valid UTF-8");
+                number
+                    .parse::<u64>()
+                    .expect("two ASCII digits should parse as a u64 successfully")
+            }).sum()
     }
 }
