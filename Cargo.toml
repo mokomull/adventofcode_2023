@@ -1,0 +1,19 @@
+[workspace]
+resolver="2"
+members=["day_*", "omnibus", "prelude"]
+
+[workspace.dependencies]
+js-sys = "0.3.60"
+petgraph = "0.6.2"
+
+[workspace.dependencies.web-sys]
+version = "0.3"
+features = [
+    "CssStyleDeclaration",
+    "Document",
+    "HtmlDivElement",
+    "Text",
+]
+
+[profile.release]
+debug = true

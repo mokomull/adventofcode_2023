@@ -1,0 +1,15 @@
+[package]
+name = "omnibus"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+day_01 = { path = "../day_01" }
+js-sys = { workspace = true }
+wasm-bindgen = "0.2.83"
+web-sys = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
