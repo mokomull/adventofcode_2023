@@ -24,3 +24,4 @@ macro_rules! common_day {
 
 common_day!(day_01, Day01, u64, u64);
 common_day!(day_02, Day02, u64, u64);
+common_day!(day_03, Day03, u64, u64);
