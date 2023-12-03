@@ -22,6 +22,8 @@ impl Solution {
                     continue;
                 }
 
+                log::debug!("symbol at {:?}: {:?}", (row, col), c);
+
                 // we're on a symbol, so check all around it for a digit
                 for x in row.saturating_sub(1)..=min(row + 1, self.0.len() - 1) {
                     for y in col.saturating_sub(1)..=min(col + 1, self.0[0].len() - 1) {
@@ -33,6 +35,7 @@ impl Solution {
                             // part numbers only exist within a single row, so just look left and right for more digits
                             let string = &self.0[x];
                             let first = (0..y)
+                                .rev()
                                 .position(|i| !string[i].is_ascii_digit())
                                 .map(
                                     // add one, because we found the first position left of (x, y) that is *not* a digit
@@ -45,7 +48,7 @@ impl Solution {
 
                             let part_number = std::str::from_utf8(&string[first..last])
                                 .context("digits should be UTF-8")?;
-                            log::debug!("found part number: {:}", part_number);
+                            log::debug!("found part number: {:?}", part_number);
 
                             sum += part_number
                                 .parse::<u64>()
