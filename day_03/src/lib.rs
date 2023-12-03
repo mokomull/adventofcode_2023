@@ -33,18 +33,19 @@ impl Solution {
 
                         if self.0[x][y].is_ascii_digit() {
                             // part numbers only exist within a single row, so just look left and right for more digits
-                            let string = &self.0[x];
+                            let string = &*self.0[x];
                             let first = (0..y)
                                 .rev()
-                                .position(|i| !string[i].is_ascii_digit())
+                                .find(|&i| !string[i].is_ascii_digit())
                                 .map(
                                     // add one, because we found the first position left of (x, y) that is *not* a digit
                                     |i| i + 1,
                                 )
                                 .unwrap_or(0);
                             let last = (y..string.len())
-                                .position(|i| !string[i].is_ascii_digit())
+                                .find(|&i| !string[i].is_ascii_digit())
                                 .unwrap_or(string.len());
+                            log::debug!("{first} {last}");
 
                             let part_number = std::str::from_utf8(&string[first..last])
                                 .context("digits should be UTF-8")?;
