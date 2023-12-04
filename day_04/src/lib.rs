@@ -37,15 +37,37 @@ impl TryFrom<&str> for Card {
     }
 }
 
-pub struct Solution();
+pub struct Solution(Vec<Card>);
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        Solution()
+        Solution(
+            input
+                .lines()
+                .map(Card::try_from)
+                .collect::<Result<_, _>>()
+                .expect("improperly formatted input"),
+        )
     }
 
     pub fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        Ok(self
+            .0
+            .iter()
+            .map(|card| {
+                let count = card
+                    .hand
+                    .iter()
+                    .filter(|x| card.winning.contains(x))
+                    .count() as u64;
+
+                if count == 0 {
+                    0
+                } else {
+                    1 << (count - 1)
+                }
+            })
+            .sum())
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
