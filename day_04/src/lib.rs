@@ -22,7 +22,7 @@ impl TryFrom<&str> for Card {
         };
 
         Ok(Card {
-            id: id.parse().context("parse card id")?,
+            id: id.trim_start().parse().context("parse card id")?,
             winning: winning
                 .split_whitespace()
                 .map(str::parse)
@@ -41,6 +41,7 @@ pub struct Solution(Vec<Card>);
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
+        init();
         Solution(
             input
                 .lines()
