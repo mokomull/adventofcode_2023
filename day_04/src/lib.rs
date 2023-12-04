@@ -1,4 +1,6 @@
-use prelude::*;
+use std::collections::BTreeMap;
+
+use prelude::{anyhow::anyhow, *};
 
 #[derive(Debug, PartialEq)]
 struct Card {
@@ -72,7 +74,38 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let winning: BTreeMap<u64, usize> = self
+            .0
+            .iter()
+            .map(|card| {
+                let count = card
+                    .hand
+                    .iter()
+                    .filter(|x| card.winning.contains(x))
+                    .count();
+                (card.id, count)
+            })
+            .collect();
+
+        let mut card_counts: HashMap<u64, usize> = self.0.iter().map(|card| (card.id, 1)).collect();
+
+        for card in &self.0 {
+            let how_many_of_this_card =
+                *card_counts.get(&card.id).expect("I counted all the cards");
+            let how_many_follow = *winning.get(&card.id).expect("I counted all the winners") as u64;
+
+            for next in (card.id + 1)..=(card.id + how_many_follow) {
+                *card_counts.get_mut(&next).ok_or_else(|| {
+                    anyhow!(
+                        "card {} sent us to card {}, and we didn't find that one",
+                        card.id,
+                        next
+                    )
+                })? += how_many_of_this_card;
+            }
+        }
+
+        Ok(card_counts.values().sum::<usize>() as u64)
     }
 }
 
