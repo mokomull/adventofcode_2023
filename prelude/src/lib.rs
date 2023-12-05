@@ -11,16 +11,19 @@ pub use anyhow::Context;
 /// # Panics
 ///
 /// Panics if `data` is empty or non-square.
-pub fn adjacent_including_diagonal<T>(
-    data: &Vec<Vec<T>>,
+pub fn adjacent_including_diagonal<T, C>(
+    data: &[C],
     x: usize,
     y: usize,
-) -> impl Iterator<Item = (usize, usize)> {
+) -> impl Iterator<Item = (usize, usize)>
+where
+    C: AsRef<[T]>,
+{
     let first_index = x.saturating_sub(1)..=min(x + 1, data.len() - 1);
     // just use data[0], which assumes that the input is
     // (a) non-empty, and
     // (b) square.
-    let second_index = y.saturating_sub(1)..=min(y + 1, data[0].len() - 1);
+    let second_index = y.saturating_sub(1)..=min(y + 1, data[0].as_ref().len() - 1);
 
     first_index
         .cartesian_product(second_index)
