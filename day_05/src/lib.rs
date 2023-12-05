@@ -1,4 +1,7 @@
-use std::collections::BTreeMap;
+use std::{
+    cmp::{max, min},
+    collections::BTreeMap,
+};
 
 use prelude::*;
 
@@ -49,6 +52,68 @@ fn get(map: &Map, k: u64) -> u64 {
     } else {
         return k;
     }
+}
+
+fn get_ranges(map: &Map, mut k: u64, mut target_count: u64) -> Vec<(u64, u64)> {
+    let mut res = vec![];
+
+    // Some() if our start actually exists in a range
+    let previous = map
+        .range(..=k)
+        .rev()
+        .next()
+        .filter(|(&from, &(to, count))| {
+            assert!(k >= from);
+            k - from <= count
+        });
+    if let Some((from, (to, count))) = previous {
+        let offset = k - from;
+        let end_count = min(target_count, count - offset);
+        res.push((to + offset, end_count));
+        target_count -= end_count;
+        k += end_count;
+    }
+
+    while target_count != 0 {
+        // invariant: k is either exactly the beginning of a mapped range, or
+        // fully outside one.  We must have fully exhausted any partial range
+        // before here.
+        log::debug!("starting on k = {}, count = {}", k, target_count);
+
+        let next = map.range(k..).next();
+        if let Some((&from, &(next_to, next_count))) = next {
+            if from > k {
+                // k is outside any mapped range
+                // these are the values from k to the next segment
+                let identity_count = min(target_count, from - k);
+                res.push((k, identity_count));
+                k += identity_count;
+                target_count -= identity_count;
+            } else {
+                // these are the values within the this segment
+                let segment_count = min(target_count, next_count);
+                res.push((next_to, segment_count));
+                k += segment_count;
+                target_count -= segment_count;
+            }
+        } else {
+            // there is no next segment in the map, so write out the last
+            // segment as mapping target_count values from k to k.
+            res.push((k, target_count));
+            break;
+        }
+    }
+
+    res
+}
+
+fn get_all_ranges(map: &Map, ranges: Vec<(u64, u64)>) -> Vec<(u64, u64)> {
+    log::debug!("ranges: {:?}", ranges);
+
+    ranges
+        .into_iter()
+        .flat_map(|(k, count)| get_ranges(map, k, count).into_iter())
+        .collect()
 }
 
 impl Solution {
@@ -122,7 +187,25 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let ranges = self
+            .seeds
+            .iter()
+            .tuples()
+            .map(|(&k, &count)| (k, count))
+            .collect_vec();
+        let ranges = get_all_ranges(&self.seed_to_soil, ranges);
+        let ranges = get_all_ranges(&self.soil_to_fertilizer, ranges);
+        let ranges = get_all_ranges(&self.fertilizer_to_water, ranges);
+        let ranges = get_all_ranges(&self.water_to_light, ranges);
+        let ranges = get_all_ranges(&self.light_to_temperature, ranges);
+        let ranges = get_all_ranges(&self.temperature_to_humidity, ranges);
+        let ranges = get_all_ranges(&self.humidity_to_location, ranges);
+
+        ranges
+            .into_iter()
+            .map(|(start, _)| start)
+            .min()
+            .ok_or_else(|| anyhow::anyhow!("seriously, no matches?"))
     }
 }
 
@@ -132,8 +215,11 @@ mod tests {
 
     #[test]
     fn example() {
+        env_logger::init();
+
         let example = Solution::new(EXAMPLE);
         assert_eq!(example.part1().unwrap(), 35);
+        assert_eq!(example.part2().unwrap(), 46);
     }
 
     static EXAMPLE: &str = "seeds: 79 14 55 13
