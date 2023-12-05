@@ -77,7 +77,42 @@ impl Solution {
     }
 
     pub fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let mut result = u64::MAX;
+
+        for &seed in &self.seeds {
+            let idx = self
+                .seed_to_soil
+                .get(&seed)
+                .ok_or_else(|| anyhow::anyhow!("seed_to_soil"))?;
+            let idx = self
+                .soil_to_fertilizer
+                .get(idx)
+                .ok_or_else(|| anyhow::anyhow!("soil_to_fertilizer"))?;
+            let idx = self
+                .fertilizer_to_water
+                .get(idx)
+                .ok_or_else(|| anyhow::anyhow!("fertilizer_to_water"))?;
+            let idx = self
+                .water_to_light
+                .get(idx)
+                .ok_or_else(|| anyhow::anyhow!("water_to_light"))?;
+            let idx = self
+                .light_to_temperature
+                .get(idx)
+                .ok_or_else(|| anyhow::anyhow!("light_to_temperature"))?;
+            let idx = self
+                .temperature_to_humidity
+                .get(idx)
+                .ok_or_else(|| anyhow::anyhow!("temperature_to_humidity"))?;
+            let idx = self
+                .humidity_to_location
+                .get(idx)
+                .ok_or_else(|| anyhow::anyhow!("humidity_to_location"))?;
+
+            result = std::cmp::min(result, *idx);
+        }
+
+        Ok(result)
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
