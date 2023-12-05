@@ -134,6 +134,7 @@ mod tests {
     fn example() {
         let example = Solution::new(EXAMPLE);
         assert_eq!(example.part1().unwrap(), 35);
+        assert_eq!(example.part2().unwrap(), 46);
     }
 
     static EXAMPLE: &str = "seeds: 79 14 55 13
