@@ -24,7 +24,7 @@ impl Solution {
 
                 // we're on a symbol, so check all around it for a digit
                 for (x, y) in adjacent_including_diagonal(&self.0, row, col) {
-                    if (x, y) == (row, col) || visited.contains(&(x, y)) {
+                    if visited.contains(&(x, y)) {
                         continue;
                     }
 
@@ -81,7 +81,7 @@ impl Solution {
 
                 // we're on a symbol, so check all around it for a digit
                 for (x, y) in adjacent_including_diagonal(&self.0, row, col) {
-                    if (x, y) == (row, col) || visited.contains(&(x, y)) {
+                    if visited.contains(&(x, y)) {
                         continue;
                     }
 
