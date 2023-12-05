@@ -1,7 +1,4 @@
-use std::{
-    cmp::{max, min},
-    collections::BTreeMap,
-};
+use std::{cmp::min, collections::BTreeMap};
 
 use prelude::*;
 
@@ -40,17 +37,17 @@ fn parse_map<'a>(it: impl Iterator<Item = &'a str>) -> Map {
 }
 
 fn get(map: &Map, k: u64) -> u64 {
-    let previous = map.range(..=k).rev().next();
+    let previous = map.range(..=k).next_back();
     if let Some((from, (to, count))) = previous {
         assert!(k >= *from, "looked up {}, found {}", k, from);
         let offset = k - from;
         if offset <= *count {
-            return to + offset;
+            to + offset
         } else {
-            return k;
+            k
         }
     } else {
-        return k;
+        k
     }
 }
 
@@ -60,9 +57,8 @@ fn get_ranges(map: &Map, mut k: u64, mut target_count: u64) -> Vec<(u64, u64)> {
     // Some() if our start actually exists in a range
     let previous = map
         .range(..=k)
-        .rev()
-        .next()
-        .filter(|(&from, &(to, count))| {
+        .next_back()
+        .filter(|(&from, &(_to, count))| {
             assert!(k >= from);
             k - from <= count
         });

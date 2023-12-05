@@ -16,7 +16,7 @@ impl TryFrom<&str> for Card {
         let Some((left, right)) = value.split_once(": ") else {
             anyhow::bail!("did not find a colon")
         };
-        let Some((_, id)) = left.split_once(" ") else {
+        let Some((_, id)) = left.split_once(' ') else {
             anyhow::bail!("could not find the card id");
         };
         let Some((winning, hand)) = right.split_once(" | ") else {
