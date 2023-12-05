@@ -1,6 +1,8 @@
+use std::collections::BTreeMap;
+
 use prelude::*;
 
-type Map = HashMap<u64, u64>;
+type Map = BTreeMap<u64, (u64, u64)>;
 
 pub struct Solution {
     seeds: Vec<u64>,
@@ -28,12 +30,25 @@ fn parse_map<'a>(it: impl Iterator<Item = &'a str>) -> Map {
         .map(|junk: [u64; 3]| (junk[0], junk[1], junk[2]));
 
     for (to, from, count) in triples {
-        for offset in 0..count {
-            map.insert(from + offset, to + offset);
-        }
+        map.insert(from, (to, count));
     }
 
     map
+}
+
+fn get(map: &Map, k: u64) -> u64 {
+    let previous = map.range(..=k).rev().next();
+    if let Some((from, (to, count))) = previous {
+        assert!(k >= *from, "looked up {}, found {}", k, from);
+        let offset = k - from;
+        if offset <= *count {
+            return to + offset;
+        } else {
+            return k;
+        }
+    } else {
+        return k;
+    }
 }
 
 impl Solution {
@@ -85,22 +100,22 @@ impl Solution {
 
         for &seed in &self.seeds {
             log::debug!("seed {}", seed);
-            let idx = self.seed_to_soil.get(&seed).unwrap_or(&seed);
+            let idx = get(&self.seed_to_soil, seed);
             log::debug!("idx {}", idx);
-            let idx = self.soil_to_fertilizer.get(idx).unwrap_or(idx);
+            let idx = get(&self.soil_to_fertilizer, idx);
             log::debug!("idx {}", idx);
-            let idx = self.fertilizer_to_water.get(idx).unwrap_or(idx);
+            let idx = get(&self.fertilizer_to_water, idx);
             log::debug!("idx {}", idx);
-            let idx = self.water_to_light.get(idx).unwrap_or(idx);
+            let idx = get(&self.water_to_light, idx);
             log::debug!("idx {}", idx);
-            let idx = self.light_to_temperature.get(idx).unwrap_or(idx);
+            let idx = get(&self.light_to_temperature, idx);
             log::debug!("idx {}", idx);
-            let idx = self.temperature_to_humidity.get(idx).unwrap_or(idx);
+            let idx = get(&self.temperature_to_humidity, idx);
             log::debug!("idx {}", idx);
-            let idx = self.humidity_to_location.get(idx).unwrap_or(idx);
+            let idx = get(&self.humidity_to_location, idx);
             log::debug!("idx {}", idx);
 
-            result = std::cmp::min(result, *idx);
+            result = std::cmp::min(result, idx);
         }
 
         Ok(result)
