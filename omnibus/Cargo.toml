@@ -10,6 +10,7 @@ day_01 = { path = "../day_01" }
 day_02 = { path = "../day_02" }
 day_03 = { version = "0.1.0", path = "../day_03" }
 day_04 = { path = "../day_04" }
+day_05 = { version = "0.1.0", path = "../day_05" }
 js-sys = { workspace = true }
 wasm-bindgen = "0.2.83"
 web-sys = { workspace = true }
