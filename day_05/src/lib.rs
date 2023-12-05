@@ -107,6 +107,8 @@ fn get_ranges(map: &Map, mut k: u64, mut target_count: u64) -> Vec<(u64, u64)> {
 }
 
 fn get_all_ranges(map: &Map, ranges: Vec<(u64, u64)>) -> Vec<(u64, u64)> {
+    log::debug!("ranges: {:?}", ranges);
+
     ranges
         .into_iter()
         .flat_map(|(k, count)| get_ranges(map, k, count).into_iter())
@@ -212,6 +214,8 @@ mod tests {
 
     #[test]
     fn example() {
+        env_logger::init();
+
         let example = Solution::new(EXAMPLE);
         assert_eq!(example.part1().unwrap(), 35);
         assert_eq!(example.part2().unwrap(), 46);

@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 prelude = { version = "0.1.0", path = "../prelude" }
+
+[dev-dependencies]
+env_logger = "0.10.1"
