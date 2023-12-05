@@ -84,13 +84,21 @@ impl Solution {
         let mut result = u64::MAX;
 
         for &seed in &self.seeds {
+            log::debug!("seed {}", seed);
             let idx = self.seed_to_soil.get(&seed).unwrap_or(&seed);
+            log::debug!("idx {}", idx);
             let idx = self.soil_to_fertilizer.get(idx).unwrap_or(idx);
+            log::debug!("idx {}", idx);
             let idx = self.fertilizer_to_water.get(idx).unwrap_or(idx);
+            log::debug!("idx {}", idx);
             let idx = self.water_to_light.get(idx).unwrap_or(idx);
+            log::debug!("idx {}", idx);
             let idx = self.light_to_temperature.get(idx).unwrap_or(idx);
+            log::debug!("idx {}", idx);
             let idx = self.temperature_to_humidity.get(idx).unwrap_or(idx);
+            log::debug!("idx {}", idx);
             let idx = self.humidity_to_location.get(idx).unwrap_or(idx);
+            log::debug!("idx {}", idx);
 
             result = std::cmp::min(result, *idx);
         }
