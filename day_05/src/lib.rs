@@ -45,7 +45,11 @@ impl Solution {
         let seeds = lines.next().expect("no seeds");
         let seeds = seeds
             .split_whitespace()
-            .map(|seed| seed.parse().expect("seed not an integer?"))
+            .skip(1)
+            .map(|seed| {
+                log::debug!("{:?}", seed);
+                seed.parse().expect("seed not an integer?")
+            })
             .collect();
         assert_eq!(lines.next().unwrap(), "");
 
