@@ -27,7 +27,7 @@ fn parse_map<'a>(it: impl Iterator<Item = &'a str>) -> Map {
         })
         .map(|junk: [u64; 3]| (junk[0], junk[1], junk[2]));
 
-    for (from, to, count) in triples {
+    for (to, from, count) in triples {
         for offset in 0..count {
             map.insert(from + offset, to + offset);
         }
