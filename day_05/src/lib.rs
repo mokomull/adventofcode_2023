@@ -13,10 +13,11 @@ pub struct Solution {
     humidity_to_location: Map,
 }
 
-fn get_triples<'a>(
-    it: &'a mut impl Iterator<Item = &'a str>,
-) -> impl Iterator<Item = (u64, u64, u64)> + 'a {
-    it.take_while(|x| !x.is_empty())
+fn parse_map<'a>(it: impl Iterator<Item = &'a str>) -> Map {
+    let mut map = Map::new();
+
+    let triples = it
+        .take_while(|x| !x.is_empty())
         .map(|line| {
             line.split_whitespace()
                 .map(|x| x.parse().expect("not an integer"))
@@ -24,13 +25,9 @@ fn get_triples<'a>(
                 .try_into()
                 .expect("more or fewer than three in a line")
         })
-        .map(|junk: [u64; 3]| (junk[0], junk[1], junk[2]))
-}
+        .map(|junk: [u64; 3]| (junk[0], junk[1], junk[2]));
 
-fn parse_map(it: impl Iterator<Item = (u64, u64, u64)>) -> Map {
-    let mut map = Map::new();
-
-    for (from, to, count) in it {
+    for (from, to, count) in triples {
         for offset in 0..count {
             map.insert(from + offset, to + offset);
         }
@@ -53,22 +50,19 @@ impl Solution {
         assert_eq!(lines.next().unwrap(), "");
 
         assert_eq!(lines.next().unwrap(), "seed-to-soil map:");
-        let seed_to_soil = {
-            let triples = get_triples(&mut lines);
-            parse_map(triples)
-        };
+        let seed_to_soil = parse_map(&mut lines);
         assert_eq!(lines.next().unwrap(), "soil-to-fertilizer map:");
-        let soil_to_fertilizer = parse_map(get_triples(&mut lines));
+        let soil_to_fertilizer = parse_map(&mut lines);
         assert_eq!(lines.next().unwrap(), "fertilizer-to-water map:");
-        let fertilizer_to_water = parse_map(get_triples(&mut lines));
+        let fertilizer_to_water = parse_map(&mut lines);
         assert_eq!(lines.next().unwrap(), "water-to-light map:");
-        let water_to_light = parse_map(get_triples(&mut lines));
+        let water_to_light = parse_map(&mut lines);
         assert_eq!(lines.next().unwrap(), "light-to-temperature map:");
-        let light_to_temperature = parse_map(get_triples(&mut lines));
+        let light_to_temperature = parse_map(&mut lines);
         assert_eq!(lines.next().unwrap(), "temperature-to-humidity map:");
-        let temperature_to_humidity = parse_map(get_triples(&mut lines));
+        let temperature_to_humidity = parse_map(&mut lines);
         assert_eq!(lines.next().unwrap(), "humidity-to-location map:");
-        let humidity_to_location = parse_map(get_triples(&mut lines));
+        let humidity_to_location = parse_map(&mut lines);
 
         Solution {
             seeds,
