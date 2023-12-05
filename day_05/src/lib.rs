@@ -189,7 +189,7 @@ impl Solution {
         let ranges = self
             .seeds
             .iter()
-            .tuple_windows()
+            .tuples()
             .map(|(&k, &count)| (k, count))
             .collect_vec();
         let ranges = get_all_ranges(&self.seed_to_soil, ranges);
