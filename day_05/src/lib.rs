@@ -75,29 +75,30 @@ fn get_ranges(map: &Map, mut k: u64, mut target_count: u64) -> Vec<(u64, u64)> {
     }
 
     while target_count != 0 {
-        // invariant: k is *outside* any range in map
+        // invariant: k is either exactly the beginning of a mapped range, or
+        // fully outside one.  We must have fully exhausted any partial range
+        // before here.
+        log::debug!("starting on k = {}, count = {}", k, target_count);
 
         let next = map.range(k..).next();
         if let Some((&from, &(next_to, next_count))) = next {
-            assert!(from > k);
-
-            // these are the values from k to the next segment
-            let identity_count = min(target_count, from - k);
-            res.push((k, identity_count));
-            k += identity_count;
-            target_count -= identity_count;
-
-            if target_count == 0 {
-                break;
+            if from > k {
+                // k is outside any mapped range
+                // these are the values from k to the next segment
+                let identity_count = min(target_count, from - k);
+                res.push((k, identity_count));
+                k += identity_count;
+                target_count -= identity_count;
+            } else {
+                // these are the values within the this segment
+                let segment_count = min(target_count, next_count);
+                res.push((next_to, segment_count));
+                k += segment_count;
+                target_count -= segment_count;
             }
-
-            // these are the values within the next segment
-            let segment_count = min(target_count, next_count);
-            res.push((next_to, segment_count));
-            k += segment_count;
-            target_count -= segment_count;
         } else {
-            // there is no next segment in the map, so write out the last segment as mapping target_count values from k to k.
+            // there is no next segment in the map, so write out the last
+            // segment as mapping target_count values from k to k.
             res.push((k, target_count));
             break;
         }
