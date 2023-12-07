@@ -55,6 +55,9 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let times = self.0.iter().map(|x| format!("{}", x.time)).join("");
+        let records = self.0.iter().map(|x| format!("{}", x.record)).join("");
+
+        Solution::new(&format!("Time: {}\nDistance: {}\n", times, records)).part1()
     }
 }
