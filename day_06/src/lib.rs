@@ -5,6 +5,14 @@ struct Race {
     record: u64,
 }
 
+impl Race {
+    fn ways_to_win(&self) -> u64 {
+        (0..self.time)
+            .filter(|held| held * (self.time - held) > self.record)
+            .count() as u64
+    }
+}
+
 pub struct Solution(Vec<Race>);
 
 impl Solution {
@@ -43,7 +51,7 @@ impl Solution {
     }
 
     pub fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        Ok(self.0.iter().map(Race::ways_to_win).product())
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
