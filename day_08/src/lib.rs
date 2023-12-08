@@ -67,11 +67,13 @@ impl Solution {
         let mut data = HashMap::new();
 
         for s in starting {
+            log::debug!("working on {s:?}");
             let mut steps_to_end = None;
 
             let mut current = s;
             let mut seen = HashMap::new();
             for (i, direction) in self.directions.bytes().cycle().enumerate() {
+                log::debug!("visiting {current:?}");
                 if steps_to_end.is_none() && current.ends_with('Z') {
                     steps_to_end = Some(i);
                 }
@@ -81,6 +83,7 @@ impl Solution {
                 // to count as a cycle.
                 let absolute_step = i % self.directions.len();
                 if let Some(&steps_to_cycle_start) = seen.get(&(current, absolute_step)) {
+                    log::debug!("found cycle starting at {steps_to_cycle_start}, ending at {i}");
                     data.insert(
                         s,
                         Data {
