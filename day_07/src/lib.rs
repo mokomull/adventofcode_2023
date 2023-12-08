@@ -164,8 +164,6 @@ pub struct Solution(Vec<Hand>);
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        init();
-
         Solution(
             input
                 .lines()

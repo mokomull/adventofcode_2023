@@ -12,7 +12,6 @@ pub struct Solution {
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        init();
         let mut lines = input.lines();
 
         let directions = lines.next().unwrap().to_owned();

@@ -114,8 +114,6 @@ fn get_all_ranges(map: &Map, ranges: Vec<(u64, u64)>) -> Vec<(u64, u64)> {
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        init();
-
         let mut lines = input.lines();
 
         let seeds = lines.next().expect("no seeds");

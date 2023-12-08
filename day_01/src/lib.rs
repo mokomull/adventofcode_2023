@@ -7,8 +7,6 @@ pub struct Solution {
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        init();
-
         Solution {
             passwords: input.lines().map(str::to_owned).collect_vec(),
         }

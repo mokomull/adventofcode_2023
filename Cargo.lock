@@ -239,6 +239,7 @@ dependencies = [
  "day_07",
  "day_08",
  "js-sys",
+ "prelude 0.1.0",
  "wasm-bindgen",
  "web-sys",
 ]

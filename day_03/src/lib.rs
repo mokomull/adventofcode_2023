@@ -4,7 +4,6 @@ pub struct Solution(Vec<Vec<u8>>);
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
-        init();
         Solution(input.lines().map(|line| line.as_bytes().into()).collect())
     }
 
