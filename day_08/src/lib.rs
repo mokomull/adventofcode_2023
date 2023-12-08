@@ -25,8 +25,8 @@ impl Solution {
             map.insert(
                 from.to_owned(),
                 Node {
-                    left: left.to_owned(),
-                    right: right.to_owned(),
+                    left: left[1..].to_owned(),
+                    right: right[..3].to_owned(),
                 },
             );
         }
@@ -37,7 +37,7 @@ impl Solution {
     pub fn part1(&self) -> anyhow::Result<u64> {
         let mut current = "AAA";
         for (i, direction) in self.directions.bytes().cycle().enumerate() {
-            log::debug!("step {}, direction {}", i, direction);
+            log::debug!("at {:?}, step {}, direction {}", current, i, direction);
             if current == "ZZZ" {
                 return Ok(i as u64);
             }
