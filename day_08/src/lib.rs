@@ -106,25 +106,25 @@ impl Solution {
 
         log::info!("collected data: {:?}", data);
 
-        // Assuming that we'll end up finding something well beyond every
-        // starting position's cycle, we're looking for a position that satifies
-        //
-        //   x = steps_to_end (mod cycle_length)
-        //
-        // note that steps_to_cycle_start is not in that equation, since
-        // steps_to_end started at *the beginning* rather than the beginning of
-        // the cycle.  It will simply be used to verify that we calculated a
-        // sufficiently large step count.
-        let res = ring_algorithm::chinese_remainder_theorem(
-            &data
-                .values()
-                .map(|d| d.steps_to_end % d.cycle_length)
-                .collect_vec(),
-            &data.values().map(|d| d.cycle_length).collect_vec(),
-        )
-        .unwrap();
+        let res;
+        let longest_cycle = data.values().max_by_key(|d| d.cycle_length).unwrap();
 
-        assert!(data.values().all(|d| res > d.steps_to_cycle_start));
+        let mut i = longest_cycle.steps_to_end as u64;
+        loop {
+            log::debug!("looking at {}", i);
+            if data
+                .values()
+                .all(|d| i % d.cycle_length as u64 == d.steps_to_end as u64 % d.cycle_length as u64)
+            {
+                res = i;
+                break;
+            }
+
+            // make the largest steps we can.
+            i += longest_cycle.cycle_length as u64;
+        }
+
+        assert!(data.values().all(|d| res > d.steps_to_cycle_start as u64));
 
         Ok(res as u64)
     }
