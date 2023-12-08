@@ -61,3 +61,28 @@ impl Solution {
         Solution::new(&format!("Time: {}\nDistance: {}\n", times, records)).part1()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn example() {
+        let solution = Solution::new(EXAMPLE);
+        assert_eq!(solution.part1().unwrap(), 288);
+        assert_eq!(solution.part2().unwrap(), 71503);
+    }
+
+    #[test]
+    fn personal_input() {
+        let solution = Solution::new(INPUT);
+        assert_eq!(solution.part1().unwrap(), 608902);
+        assert_eq!(solution.part2().unwrap(), 46173809);
+    }
+
+    static EXAMPLE: &str = "Time:      7  15   30
+Distance:  9  40  200";
+
+    static INPUT: &str = "Time:        55     82     64     90
+Distance:   246   1441   1012   1111";
+}
