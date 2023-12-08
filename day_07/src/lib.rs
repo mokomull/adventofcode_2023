@@ -57,7 +57,7 @@ impl Hand {
         }
 
         let mut counts = counts.values().collect_vec();
-        counts.sort();
+        counts.sort_by_key(|&k| std::cmp::Reverse(k));
 
         match &counts[..] {
             [5] => FiveOfAKind,
