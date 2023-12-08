@@ -52,26 +52,57 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        let mut currents = self
+        let mut starting = self
             .map
             .keys()
             .filter(|name| name.ends_with('A'))
             .collect_vec();
 
-        for (i, direction) in self.directions.bytes().cycle().enumerate() {
-            log::debug!("at {:?}, step {}, direction {}", currents, i, direction);
-            if currents.iter().all(|&name| name.ends_with('Z')) {
-                return Ok(i as u64);
-            }
+        #[derive(Debug)]
+        struct Data {
+            steps_to_cycle_start: usize,
+            cycle_length: usize,
+            steps_to_end: usize,
+        }
+        let mut data = HashMap::new();
 
-            for name in currents.iter_mut() {
-                *name = match direction {
-                    b'L' => &self.map[*name].left,
-                    b'R' => &self.map[*name].right,
+        for s in starting {
+            let mut steps_to_end = None;
+
+            let mut current = s;
+            let mut seen = HashMap::new();
+            for (i, direction) in self.directions.bytes().cycle().enumerate() {
+                if steps_to_end.is_none() && current.ends_with('Z') {
+                    steps_to_end = Some(i);
+                }
+
+                // because not only do we have to be at the same node, but we
+                // have to be at the same node *executing the same steps* for it
+                // to count as a cycle.
+                let absolute_step = i % self.directions.len();
+                if let Some(&steps_to_cycle_start) = seen.get(&(current, absolute_step)) {
+                    data.insert(
+                        s,
+                        Data {
+                            steps_to_cycle_start,
+                            cycle_length: i - steps_to_cycle_start,
+                            steps_to_end: steps_to_end.unwrap(),
+                        },
+                    );
+                    break;
+                }
+                seen.insert((current, absolute_step), i);
+
+                current = match direction {
+                    b'L' => &self.map[current].left,
+                    b'R' => &self.map[current].right,
                     x => panic!("unexpected direction {:?}", x),
                 }
             }
         }
-        unreachable!()
+
+        log::info!("collected data: {:?}", data);
+
+        unimplemented!()
     }
 }
