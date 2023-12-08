@@ -93,6 +93,69 @@ impl PartialEq for Hand {
     }
 }
 
+#[derive(Eq, PartialEq)]
+struct Joker<T>(T);
+
+impl Joker<Hand> {
+    fn get_type(&self) -> Type {
+        let iter_of_iters = self.0.cards.into_iter().map(|card| match card {
+            Card(b'J') => (b'2'..=b'9')
+                .chain(vec![b'T', b'Q', b'K', b'A'])
+                .map(Card)
+                .collect_vec(),
+            c => vec![c],
+        });
+
+        iter_of_iters
+            .multi_cartesian_product()
+            .map(|cards| {
+                let cards: [Card; 5] = cards
+                    .try_into()
+                    .expect("there should have been exactly five");
+
+                Hand {
+                    cards,
+                    bet: self.0.bet,
+                }
+                .get_type()
+            })
+            .max()
+            .expect("must have tried at least one combination")
+    }
+}
+
+impl Ord for Joker<Hand> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.get_type().cmp(&other.get_type()) {
+            core::cmp::Ordering::Equal => self.0.cards.map(Joker).cmp(&other.0.cards.map(Joker)),
+            ord => return ord,
+        }
+    }
+}
+
+impl PartialOrd for Joker<Hand> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Joker<Card> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self.0 .0, other.0 .0) {
+            (b'J', b'J') => Equal,
+            (b'J', _) => Less,
+            (_, b'J') => Greater,
+            (x, y) => Card(x).cmp(&Card(y)),
+        }
+    }
+}
+
+impl PartialOrd for Joker<Card> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 pub struct Solution(Vec<Hand>);
 
 impl Solution {
@@ -126,6 +189,12 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented");
+        let mut hands = self.0.iter().cloned().map(Joker).collect_vec();
+        hands.sort();
+        Ok(hands
+            .into_iter()
+            .enumerate()
+            .map(|(rank, hand)| hand.0.bet * (rank as u64 + 1))
+            .sum())
     }
 }
