@@ -2,7 +2,7 @@ use std::cmp::Ordering::*;
 
 use prelude::*;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 struct Card(u8);
 
 impl std::cmp::Ord for Card {
@@ -25,6 +25,12 @@ impl std::cmp::Ord for Card {
     }
 }
 
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 #[derive(Eq, Ord, PartialEq, PartialOrd)]
 enum Type {
     HighCard,
@@ -37,7 +43,7 @@ enum Type {
 }
 use Type::*;
 
-#[derive(Clone, Eq, PartialOrd)]
+#[derive(Clone, Eq)]
 struct Hand {
     cards: [Card; 5],
     bet: u64,
@@ -75,6 +81,12 @@ impl Ord for Hand {
     }
 }
 
+impl PartialOrd for Hand {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 impl PartialEq for Hand {
     fn eq(&self, other: &Self) -> bool {
         self.cmp(other) == Equal
@@ -85,6 +97,8 @@ pub struct Solution(Vec<Hand>);
 
 impl Solution {
     pub fn new(input: &str) -> Solution {
+        init();
+
         Solution(
             input
                 .lines()
