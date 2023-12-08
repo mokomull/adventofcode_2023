@@ -52,7 +52,7 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        let mut starting = self
+        let starting = self
             .map
             .keys()
             .filter(|name| name.ends_with('A'))
@@ -103,6 +103,26 @@ impl Solution {
 
         log::info!("collected data: {:?}", data);
 
-        unimplemented!()
+        // Assuming that we'll end up finding something well beyond every
+        // starting position's cycle, we're looking for a position that satifies
+        //
+        //   x = steps_to_end (mod cycle_length)
+        //
+        // note that steps_to_cycle_start is not in that equation, since
+        // steps_to_end started at *the beginning* rather than the beginning of
+        // the cycle.  It will simply be used to verify that we calculated a
+        // sufficiently large step count.
+        let res = ring_algorithm::chinese_remainder_theorem(
+            &data
+                .values()
+                .map(|d| d.steps_to_end % d.cycle_length)
+                .collect_vec(),
+            &data.values().map(|d| d.cycle_length).collect_vec(),
+        )
+        .unwrap();
+
+        assert!(data.values().all(|d| res > d.steps_to_cycle_start));
+
+        Ok(res as u64)
     }
 }

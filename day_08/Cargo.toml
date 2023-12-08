@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 prelude = { version = "0.1.0", path = "../prelude" }
+ring-algorithm = "0.7.0"
