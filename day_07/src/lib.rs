@@ -98,29 +98,33 @@ struct Joker<T>(T);
 
 impl Joker<Hand> {
     fn get_type(&self) -> Type {
-        let iter_of_iters = self.0.cards.into_iter().map(|card| match card {
-            Card(b'J') => (b'2'..=b'9')
-                .chain(vec![b'T', b'Q', b'K', b'A'])
-                .map(Card)
-                .collect_vec(),
-            c => vec![c],
-        });
+        let mut counts = HashMap::new();
+        for x in self.0.cards {
+            *counts.entry(x).or_default() += 1
+        }
 
-        iter_of_iters
-            .multi_cartesian_product()
-            .map(|cards| {
-                let cards: [Card; 5] = cards
-                    .try_into()
-                    .expect("there should have been exactly five");
+        let jokers = counts.remove(&Card(b'J')).unwrap_or(0);
 
-                Hand {
-                    cards,
-                    bet: self.0.bet,
-                }
-                .get_type()
-            })
-            .max()
-            .expect("must have tried at least one combination")
+        let mut counts = counts.into_values().collect_vec();
+        counts.sort_by_key(|&k| std::cmp::Reverse(k));
+
+        // add the jokers to the highest-order card to make it the best hand possible
+        if counts.is_empty() {
+            counts.push(jokers);
+        } else {
+            counts[0] += jokers;
+        }
+
+        match &counts[..] {
+            [5] => FiveOfAKind,
+            [4, 1] => FourOfAKind,
+            [3, 2] => FullHouse,
+            [3, 1, 1] => ThreeOfAKind,
+            [2, 2, 1] => TwoPair,
+            [2, 1, 1, 1] => OnePair,
+            [1, 1, 1, 1, 1] => HighCard,
+            _ => panic!("unexpected counts {:?}", counts),
+        }
     }
 }
 
