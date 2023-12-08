@@ -52,6 +52,26 @@ impl Solution {
     }
 
     pub fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let mut currents = self
+            .map
+            .keys()
+            .filter(|name| name.ends_with('A'))
+            .collect_vec();
+
+        for (i, direction) in self.directions.bytes().cycle().enumerate() {
+            log::debug!("at {:?}, step {}, direction {}", currents, i, direction);
+            if currents.iter().all(|&name| name.ends_with('Z')) {
+                return Ok(i as u64);
+            }
+
+            for name in currents.iter_mut() {
+                *name = match direction {
+                    b'L' => &self.map[*name].left,
+                    b'R' => &self.map[*name].right,
+                    x => panic!("unexpected direction {:?}", x),
+                }
+            }
+        }
+        unreachable!()
     }
 }
