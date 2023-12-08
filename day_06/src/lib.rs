@@ -24,7 +24,6 @@ impl Solution {
             .split_once(':')
             .unwrap()
             .1
-            .trim_start()
             .split_whitespace()
             .map(str::parse)
             .collect::<Result<Vec<u64>, _>>()
@@ -35,7 +34,6 @@ impl Solution {
             .split_once(':')
             .unwrap()
             .1
-            .trim_start()
             .split_whitespace()
             .map(str::parse)
             .collect::<Result<Vec<u64>, _>>()

@@ -76,7 +76,7 @@ impl Ord for Hand {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match self.get_type().cmp(&other.get_type()) {
             core::cmp::Ordering::Equal => self.cards.cmp(&other.cards),
-            ord => return ord,
+            ord => ord,
         }
     }
 }
@@ -128,7 +128,7 @@ impl Ord for Joker<Hand> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match self.get_type().cmp(&other.get_type()) {
             core::cmp::Ordering::Equal => self.0.cards.map(Joker).cmp(&other.0.cards.map(Joker)),
-            ord => return ord,
+            ord => ord,
         }
     }
 }
