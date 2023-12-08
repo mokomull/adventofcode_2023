@@ -29,3 +29,4 @@ common_day!(day_04, Day04, u64, u64);
 common_day!(day_05, Day05, u64, u64);
 common_day!(day_06, Day06, u64, u64);
 common_day!(day_07, Day07, u64, u64);
+common_day!(day_08, Day08, u64, u64);
