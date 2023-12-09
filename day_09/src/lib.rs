@@ -5,6 +5,8 @@ pub struct Solution(Vec<Vec<u64>>);
 fn next_value(values: &[u64]) -> u64 {
     let mut diffs = vec![values.to_vec()];
 
+    log::debug!("Calculating interpolated value for {values:?}");
+
     while diffs.last().unwrap().iter().any(|&i| i != 0) {
         let next_diff = diffs
             .last()
@@ -16,6 +18,8 @@ fn next_value(values: &[u64]) -> u64 {
         diffs.push(next_diff);
     }
 
+    log::debug!("found diffs {diffs:?}");
+
     for i in (1..diffs.len()).rev() {
         let (lower, upper) = diffs.split_at_mut(i);
         let lower: &mut Vec<u64> = lower.last_mut().unwrap();
@@ -23,7 +27,9 @@ fn next_value(values: &[u64]) -> u64 {
         upper.push(upper.last().unwrap() + lower.last().unwrap())
     }
 
-    *diffs[0].last().unwrap()
+let res =     *diffs[0].last().unwrap();
+log::debug!("returning {res:?}");
+res
 }
 
 impl Day for Solution {
