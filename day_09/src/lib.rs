@@ -20,14 +20,7 @@ fn next_value(values: &[i64]) -> i64 {
 
     log::debug!("found diffs {diffs:?}");
 
-    for i in (1..diffs.len()).rev() {
-        let (upper, lower) = diffs.split_at_mut(i);
-        let lower = &mut lower[0];
-        let upper = upper.last_mut().unwrap();
-        upper.push(upper.last().unwrap() + lower.last().unwrap())
-    }
-
-    let res = *diffs[0].last().unwrap();
+    let res = diffs.iter().map(|d| d.last().unwrap()).sum::<i64>();
     log::debug!("returning {res:?}");
     res
 }
