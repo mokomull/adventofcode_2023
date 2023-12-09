@@ -1,8 +1,8 @@
 use prelude::*;
 
-pub struct Solution(Vec<Vec<u64>>);
+pub struct Solution(Vec<Vec<i64>>);
 
-fn next_value(values: &[u64]) -> u64 {
+fn next_value(values: &[i64]) -> i64 {
     let mut diffs = vec![values.to_vec()];
 
     log::debug!("Calculating interpolated value for {values:?}");
@@ -47,7 +47,11 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        Ok(self.0.iter().map(|history| next_value(&history)).sum())
+        Ok(self
+            .0
+            .iter()
+            .map(|history| next_value(&history))
+            .sum::<i64>() as u64)
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
