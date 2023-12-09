@@ -112,8 +112,8 @@ fn get_all_ranges(map: &Map, ranges: Vec<(u64, u64)>) -> Vec<(u64, u64)> {
         .collect()
 }
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         let mut lines = input.lines();
 
         let seeds = lines.next().expect("no seeds");
@@ -154,7 +154,7 @@ impl Solution {
         }
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         let mut result = u64::MAX;
 
         for &seed in &self.seeds {
@@ -180,7 +180,7 @@ impl Solution {
         Ok(result)
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let ranges = self
             .seeds
             .iter()

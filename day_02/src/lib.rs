@@ -94,8 +94,8 @@ pub struct Solution {
     games: Vec<Game>,
 }
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         let games = input
             .lines()
             .map(|line| Game::parse(line).unwrap().1)
@@ -103,7 +103,7 @@ impl Solution {
         Solution { games }
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         let res =
             self.games
                 .iter()
@@ -120,7 +120,7 @@ impl Solution {
         Ok(res)
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let res = self
             .games
             .iter()

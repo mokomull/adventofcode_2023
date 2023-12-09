@@ -5,6 +5,12 @@ pub use prelude_2022::*;
 pub extern crate anyhow;
 pub use anyhow::Context;
 
+pub trait Day {
+    fn new(input: &str) -> Self;
+    fn part1(&self) -> anyhow::Result<u64>;
+    fn part2(&self) -> anyhow::Result<u64>;
+}
+
 /// Iterate through the (up to) eight locations that are adjacent to (x, y),
 /// where `data` is accessed via `data[x][y]`.
 ///

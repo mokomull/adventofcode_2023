@@ -2,12 +2,12 @@ use prelude::*;
 
 pub struct Solution(Vec<Vec<u8>>);
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         Solution(input.lines().map(|line| line.as_bytes().into()).collect())
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         let mut visited = HashSet::new();
         let mut sum = 0;
 
@@ -63,7 +63,7 @@ impl Solution {
         Ok(sum)
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let mut sum = 0;
 
         for row in 0..self.0.len() {

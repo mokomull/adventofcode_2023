@@ -10,8 +10,8 @@ pub struct Solution {
     map: HashMap<String, Node>,
 }
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         let mut lines = input.lines();
 
         let directions = lines.next().unwrap().to_owned();
@@ -33,7 +33,7 @@ impl Solution {
         Self { directions, map }
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         let mut current = "AAA";
         for (i, direction) in self.directions.bytes().cycle().enumerate() {
             log::debug!("at {:?}, step {}, direction {}", current, i, direction);
@@ -50,7 +50,7 @@ impl Solution {
         unreachable!()
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let starting = self
             .map
             .keys()

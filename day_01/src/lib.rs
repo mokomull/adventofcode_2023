@@ -5,14 +5,14 @@ pub struct Solution {
     passwords: Vec<String>,
 }
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         Solution {
             passwords: input.lines().map(str::to_owned).collect_vec(),
         }
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         self.passwords
             .iter()
             .map(|p| -> anyhow::Result<_> {
@@ -36,7 +36,7 @@ impl Solution {
             .sum()
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         self.passwords
             .iter()
             .map(|p_str| -> anyhow::Result<_> {

@@ -15,8 +15,8 @@ impl Race {
 
 pub struct Solution(Vec<Race>);
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         let mut lines = input.lines();
         let times = lines
             .next()
@@ -48,11 +48,11 @@ impl Solution {
         )
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         Ok(self.0.iter().map(Race::ways_to_win).product())
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let times = self.0.iter().map(|x| format!("{}", x.time)).join("");
         let records = self.0.iter().map(|x| format!("{}", x.record)).join("");
 

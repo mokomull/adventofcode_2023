@@ -8,15 +8,15 @@ macro_rules! common_day {
         #[wasm_bindgen]
         impl $strukt {
             pub fn new(input: &str) -> Self {
-                Self($krate::Solution::new(input))
+                Self(<$krate::Solution as prelude::Day>::new(input))
             }
 
             pub fn part1(&self) -> Result<$part1_result, JsValue> {
-                self.0.part1().map_err(|e| JsValue::from(e.to_string()))
+                prelude::Day::part1(&self.0).map_err(|e| JsValue::from(e.to_string()))
             }
 
             pub fn part2(&self) -> Result<$part2_result, JsValue> {
-                self.0.part2().map_err(|e| JsValue::from(e.to_string()))
+                prelude::Day::part2(&self.0).map_err(|e| JsValue::from(e.to_string()))
             }
         }
     };

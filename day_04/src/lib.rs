@@ -41,8 +41,8 @@ impl TryFrom<&str> for Card {
 
 pub struct Solution(Vec<Card>);
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         Solution(
             input
                 .lines()
@@ -52,7 +52,7 @@ impl Solution {
         )
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         Ok(self
             .0
             .iter()
@@ -72,7 +72,7 @@ impl Solution {
             .sum())
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let winning: BTreeMap<u64, usize> = self
             .0
             .iter()

@@ -162,8 +162,8 @@ impl PartialOrd for Joker<Card> {
 
 pub struct Solution(Vec<Hand>);
 
-impl Solution {
-    pub fn new(input: &str) -> Solution {
+impl Day for Solution {
+    fn new(input: &str) -> Solution {
         Solution(
             input
                 .lines()
@@ -180,7 +180,7 @@ impl Solution {
         )
     }
 
-    pub fn part1(&self) -> anyhow::Result<u64> {
+    fn part1(&self) -> anyhow::Result<u64> {
         let mut hands = self.0.clone();
         hands.sort();
         Ok(hands
@@ -190,7 +190,7 @@ impl Solution {
             .sum())
     }
 
-    pub fn part2(&self) -> anyhow::Result<u64> {
+    fn part2(&self) -> anyhow::Result<u64> {
         let mut hands = self.0.iter().cloned().map(Joker).collect_vec();
         hands.sort();
         Ok(hands
