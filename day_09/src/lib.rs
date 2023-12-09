@@ -56,7 +56,7 @@ impl Day for Solution {
         Ok(self
             .0
             .iter()
-            .map(|history| next_value(&history))
+            .map(|history| next_value(history))
             .sum::<i64>() as u64)
     }
 
@@ -64,7 +64,7 @@ impl Day for Solution {
         Ok(self
             .0
             .iter()
-            .map(|history: &Vec<i64>| prev_value(&history))
+            .map(|history: &Vec<i64>| prev_value(history))
             .sum::<i64>() as u64)
     }
 }
