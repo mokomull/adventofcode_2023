@@ -21,15 +21,15 @@ fn next_value(values: &[u64]) -> u64 {
     log::debug!("found diffs {diffs:?}");
 
     for i in (1..diffs.len()).rev() {
-        let (lower, upper) = diffs.split_at_mut(i);
-        let lower: &mut Vec<u64> = lower.last_mut().unwrap();
-        let upper = &mut upper[0];
+        let (upper, lower) = diffs.split_at_mut(i);
+        let lower = &mut lower[0];
+        let upper = upper.last_mut().unwrap();
         upper.push(upper.last().unwrap() + lower.last().unwrap())
     }
 
-let res =     *diffs[0].last().unwrap();
-log::debug!("returning {res:?}");
-res
+    let res = *diffs[0].last().unwrap();
+    log::debug!("returning {res:?}");
+    res
 }
 
 impl Day for Solution {
