@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::{cmp::max, collections::VecDeque};
 
 use prelude::*;
 
@@ -15,6 +15,26 @@ enum Tile {
 }
 
 use Tile::*;
+
+impl Tile {
+    fn adjacent<'a>(
+        &'a self,
+        data: &Vec<Vec<Tile>>,
+        x: usize,
+        y: usize,
+    ) -> impl Iterator<Item = (usize, usize)> + 'a {
+        adjacent_including_diagonal(data, x, y).filter(move |&(next_x, next_y)| match self {
+            Ground => false,
+            NE => next_x < x || next_y > y,
+            SE => next_x > x || next_y > y,
+            NW => next_x < x || next_y < y,
+            SW => next_x > x || next_y < y,
+            Vertical => next_y == y,
+            Horizontal => next_x == x,
+            Starting => false,
+        })
+    }
+}
 
 pub struct Solution(Vec<Vec<Tile>>);
 
@@ -43,10 +63,15 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        // let mut seen = HashSet::new();
-        // let mut to_visit = VecDeque::new();
+        struct ToVisit {
+            distance: u64,
+            coord: (usize, usize),
+        }
 
-        let starting = self
+        let mut seen = HashSet::new();
+        let mut to_visit = VecDeque::new();
+
+        let (starting_x, starting_y) = self
             .0
             .iter()
             .enumerate()
@@ -61,7 +86,39 @@ impl Day for Solution {
             })
             .ok_or_else(|| anyhow::anyhow!("there was no starting tile"))?;
 
-        anyhow::bail!("unimplemented");
+        for (x, y) in adjacent_including_diagonal(&self.0, starting_x, starting_y) {
+            if x != starting_x && y != starting_y {
+                // diagonal, so skip
+                continue;
+            }
+
+            to_visit.push_back(ToVisit {
+                distance: 1,
+                coord: (x, y),
+            });
+        }
+
+        let mut res = 0;
+
+        while let Some(i) = to_visit.pop_front() {
+            if seen.contains(&(i.coord)) {
+                continue;
+            }
+            seen.insert(i.coord);
+
+            let distance = i.distance + 1;
+            res = max(res, distance);
+
+            let (x, y) = i.coord;
+            for (next_x, next_y) in self.0[x][y].adjacent(&self.0, x, y) {
+                to_visit.push_back(ToVisit {
+                    distance,
+                    coord: (next_x, next_y),
+                });
+            }
+        }
+
+        Ok(res)
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
