@@ -23,15 +23,18 @@ impl Tile {
         x: usize,
         y: usize,
     ) -> impl Iterator<Item = (usize, usize)> + 'a {
-        adjacent_including_diagonal(data, x, y).filter(move |&(next_x, next_y)| match self {
-            Ground => false,
-            NE => next_x < x || next_y > y,
-            SE => next_x > x || next_y > y,
-            NW => next_x < x || next_y < y,
-            SW => next_x > x || next_y < y,
-            Vertical => next_y == y,
-            Horizontal => next_x == x,
-            Starting => false,
+        adjacent_including_diagonal(data, x, y).filter(move |&(next_x, next_y)| {
+            (next_x == x || next_y == y) // filter out diagonals
+                && match self {
+                    Ground => false,
+                    NE => next_x < x || next_y > y,
+                    SE => next_x > x || next_y > y,
+                    NW => next_x < x || next_y < y,
+                    SW => next_x > x || next_y < y,
+                    Vertical => next_y == y,
+                    Horizontal => next_x == x,
+                    Starting => false,
+                }
         })
     }
 }
