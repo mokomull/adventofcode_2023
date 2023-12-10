@@ -26,7 +26,7 @@ impl Tile {
         adjacent_including_diagonal(data, x, y).filter(move |&(next_x, next_y)| {
             (next_x == x || next_y == y) // filter out diagonals
                 && match self {
-                    Ground => false,
+                    Ground => panic!("should not have reached ground at {:?}", (next_x, next_y)),
                     NE => next_x < x || next_y > y,
                     SE => next_x > x || next_y > y,
                     NW => next_x < x || next_y < y,
