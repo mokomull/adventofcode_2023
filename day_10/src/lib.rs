@@ -97,6 +97,11 @@ impl Day for Solution {
                 continue;
             }
 
+            if self.0[x][y] == Ground {
+                // only start with the two connected pipes
+                continue;
+            }
+
             to_visit.push_back(ToVisit {
                 distance: 1,
                 coord: (x, y),
