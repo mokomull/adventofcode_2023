@@ -1,5 +1,7 @@
 use wasm_bindgen::prelude::*;
 
+mod day10;
+
 macro_rules! common_day {
     ($krate: ident, $strukt: ident, $part1_result: ty, $part2_result: ty) => {
         #[wasm_bindgen]
@@ -21,6 +23,8 @@ macro_rules! common_day {
         }
     };
 }
+
+use common_day; // let submodule use it
 
 common_day!(day_01, Day01, u64, u64);
 common_day!(day_02, Day02, u64, u64);

@@ -1,0 +1,13 @@
+#target {
+    font-family: monospace;
+    line-height: 100%;
+}
+
+.found {
+    background-color: darkgreen;
+    color: white;
+}
+
+.notfound {
+    color: #999;
+}

@@ -15,9 +15,11 @@ day_06 = { version = "0.1.0", path = "../day_06" }
 day_07 = { version = "0.1.0", path = "../day_07" }
 day_08 = { version = "0.1.0", path = "../day_08" }
 day_09 = { version = "0.1.0", path = "../day_09" }
+day_10 = { version = "0.1.0", path = "../day_10" }
 js-sys = { workspace = true }
 prelude = { version = "0.1.0", path = "../prelude" }
-wasm-bindgen = "0.2.83"
+serde-wasm-bindgen = "0.6.2"
+wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
 web-sys = { workspace = true }
 
 [lib]
