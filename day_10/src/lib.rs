@@ -73,7 +73,7 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        todo!()
+        anyhow::bail!("unimplemented");
     }
 }
 
