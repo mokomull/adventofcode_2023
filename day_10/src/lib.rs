@@ -63,6 +63,7 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
+        #[derive(Debug)]
         struct ToVisit {
             distance: u64,
             coord: (usize, usize),
@@ -99,6 +100,7 @@ impl Day for Solution {
         }
 
         while let Some(i) = to_visit.pop_front() {
+            log::debug!("visiting {i:?}");
             if let Some(existing) = seen.get(&i.coord) {
                 if *existing <= i.distance {
                     continue;
@@ -110,6 +112,7 @@ impl Day for Solution {
 
             let (x, y) = i.coord;
             for (next_x, next_y) in self.0[x][y].adjacent(&self.0, x, y) {
+                log::debug!("neighbor is {:?}", (next_x, next_y));
                 to_visit.push_back(ToVisit {
                     distance,
                     coord: (next_x, next_y),
