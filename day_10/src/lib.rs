@@ -1,4 +1,4 @@
-use std::{cmp::max, collections::VecDeque};
+use std::collections::VecDeque;
 
 use prelude::*;
 
@@ -68,7 +68,7 @@ impl Day for Solution {
             coord: (usize, usize),
         }
 
-        let mut seen = HashSet::new();
+        let mut seen = HashMap::new();
         let mut to_visit = VecDeque::new();
 
         let (starting_x, starting_y) = self
@@ -98,16 +98,15 @@ impl Day for Solution {
             });
         }
 
-        let mut res = 0;
-
         while let Some(i) = to_visit.pop_front() {
-            if seen.contains(&(i.coord)) {
-                continue;
+            if let Some(existing) = seen.get(&i.coord) {
+                if *existing <= i.distance {
+                    continue;
+                }
             }
-            seen.insert(i.coord);
+            seen.insert(i.coord, i.distance);
 
             let distance = i.distance + 1;
-            res = max(res, distance);
 
             let (x, y) = i.coord;
             for (next_x, next_y) in self.0[x][y].adjacent(&self.0, x, y) {
@@ -118,7 +117,9 @@ impl Day for Solution {
             }
         }
 
-        Ok(res)
+        seen.into_values()
+            .max()
+            .ok_or_else(|| anyhow::anyhow!("somehow managed to visit no nodes"))
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
