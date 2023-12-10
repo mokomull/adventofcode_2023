@@ -1,5 +1,7 @@
 ---
 layout: default
+custom_css: day_10.css
+example: ""
 ---
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
@@ -10,7 +12,7 @@ layout: default
   <div class="post-content e-content" itemprop="articleBody">
     <form>
       <p>
-          <textarea id="input" cols="60" rows="10">{{ page.content | escape }}</textarea>
+          <textarea id="input" cols="60" rows="10">{{ page.example | escape }}</textarea>
       </p>
       <p>
           <input id="runbutton" type="button" value="Run!">
@@ -22,6 +24,8 @@ layout: default
     </p>
     <p>
         Part 2: <span id="part2"></span>
+    </p>
+    <p id="target">
     </p>
   </div>
 
@@ -58,6 +62,54 @@ layout: default
             error.className = "error";
             error.innerText = e;
             part2.appendChild(error);
+        }
+
+        let target = document.getElementById("target");
+        target.textContent = "";
+
+        let input = document.getElementById("input").value.split("\n");
+        let distances = solution.get_distances();
+        for (let x = 0; x < input.length; x++) {
+            let line = input[x];
+            for (let y = 0; y < line.length; y++) {
+                let cell = document.createElement("span");
+                let distance = distances.get(x + "," + y);
+                if (distance) {
+                    cell.classList = "found"
+                } else {
+                    cell.classList = "notfound"
+                }
+
+                switch (line[y]) {
+                    case ".":
+                        cell.textContent = "•";
+                        break;
+                    case "-":
+                        cell.textContent = "─";
+                        break;
+                    case "|":
+                        cell.textContent = "│";
+                        break;
+                    case "L":
+                        cell.textContent = "└";
+                        break;
+                    case "J":
+                        cell.textContent = "┘";
+                        break;
+                    case "7":
+                        cell.textContent = "┐";
+                        break;
+                    case "F":
+                        cell.textContent = "┌";
+                        break;
+                    default:
+                        cell.textContent = line[y];
+                }
+
+                target.appendChild(cell);
+            }
+
+            target.appendChild(document.createElement("br"));
         }
     })
   </script>

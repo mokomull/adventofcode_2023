@@ -66,6 +66,19 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
+        self.get_distances()?
+            .into_values()
+            .max()
+            .ok_or_else(|| anyhow::anyhow!("somehow managed to visit no nodes"))
+    }
+
+    fn part2(&self) -> anyhow::Result<u64> {
+        todo!()
+    }
+}
+
+impl Solution {
+    pub fn get_distances(&self) -> anyhow::Result<HashMap<(usize, usize), u64>> {
         #[derive(Debug)]
         struct ToVisit {
             distance: u64,
@@ -134,12 +147,6 @@ impl Day for Solution {
             }
         }
 
-        seen.into_values()
-            .max()
-            .ok_or_else(|| anyhow::anyhow!("somehow managed to visit no nodes"))
-    }
-
-    fn part2(&self) -> anyhow::Result<u64> {
-        todo!()
+        Ok(seen)
     }
 }
