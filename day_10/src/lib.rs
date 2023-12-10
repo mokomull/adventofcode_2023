@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use prelude::*;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 enum Tile {
     Ground,
     NE,
@@ -103,7 +103,10 @@ impl Day for Solution {
         }
 
         while let Some(i) = to_visit.pop_front() {
-            log::debug!("visiting {i:?}");
+            log::debug!(
+                "visiting {i:?}, which is a {:?}",
+                self.0[i.coord.0][i.coord.1]
+            );
             if let Some(existing) = seen.get(&i.coord) {
                 if *existing <= i.distance {
                     continue;
