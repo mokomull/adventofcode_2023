@@ -73,7 +73,41 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        todo!()
+        #[derive(Hash, Eq, PartialEq)]
+        enum Side {
+            Left,
+            Right,
+            Top,
+            Bottom,
+        }
+        use Side::*;
+
+        let mut seen: HashMap<(usize, usize), HashSet<Side>> = HashMap::new();
+        // assume all four sides of (0,0) are on the "outside"
+        let mut to_visit: VecDeque<_> = vec![
+            ((0, 0), Left),
+            ((0, 0), Right),
+            ((0, 0), Top),
+            ((0, 0), Bottom),
+        ]
+        .into();
+
+        while let Some(((x, y), side)) = to_visit.pop_front() {
+            if !seen.entry((x, y)).or_default().insert(side) {
+                // we've already seen this side of this tile, so don't worry about it
+                continue;
+            }
+
+            match side {
+                Left => {
+                    match self.0[x][y] {
+                        Ground => 
+                    }
+                }
+            }
+        }
+
+        anyhow::bail!("unimplemented");
     }
 }
 
