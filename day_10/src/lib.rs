@@ -117,6 +117,14 @@ impl Solution {
                 continue;
             }
 
+            // and only start with pipes that flow to/from S; exclude pipes that make a glancing blow
+            if !self.0[x][y]
+                .adjacent(&self.0, x, y)
+                .contains(&(starting_x, starting_y))
+            {
+                continue;
+            }
+
             to_visit.push_back(ToVisit {
                 distance: 1,
                 coord: (x, y),
