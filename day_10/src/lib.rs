@@ -91,6 +91,8 @@ impl Day for Solution {
             .ok_or_else(|| anyhow::anyhow!("there was no starting tile"))?;
         log::debug!("starting at {:?}", (starting_x, starting_y));
 
+        seen.insert((starting_x, starting_y), 0);
+
         for (x, y) in adjacent_including_diagonal(&self.0, starting_x, starting_y) {
             if x != starting_x && y != starting_y {
                 // diagonal, so skip
