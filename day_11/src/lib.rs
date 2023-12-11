@@ -22,18 +22,28 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        let expanded = self.0.iter().flat_map(|row| {
-            if row.iter().any(|&x| x) {
-                vec![row]
-            } else {
-                vec![row, row]
+        let mut expanded = self.0.clone();
+        // find all the empty columns first - from right to left so we never have to worry about what we've already inserted
+        for c in (0..self.0[0].len()).rev() {
+            if self.0.iter().all(|row| !row[c]) {
+                // insert a column here
+                for row in expanded.iter_mut() {
+                    row.insert(c, false);
+                }
             }
-        });
+        }
+
+        // now find all the empty rows
+        for r in (0..self.0.len()).rev() {
+            if self.0[r].iter().all(|&x| !x) {
+                expanded.insert(r, expanded[r].clone());
+            }
+        }
 
         let mut galaxies = vec![];
         let mut sum_distances = 0;
 
-        for (i, row) in expanded.enumerate() {
+        for (i, row) in expanded.into_iter().enumerate() {
             for j in row.iter().positions(|&x| x) {
                 for &(other_i, other_j) in &galaxies {
                     // Manhattan distance, but written so I don't have to use signed arithmetic and abs().
