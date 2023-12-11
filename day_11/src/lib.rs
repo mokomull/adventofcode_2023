@@ -1,4 +1,7 @@
-use std::cmp::{max, min};
+use std::{
+    cmp::{max, min},
+    collections::BTreeSet,
+};
 
 use prelude::*;
 
@@ -40,7 +43,7 @@ impl Day for Solution {
             }
         }
 
-        let mut galaxies = vec![];
+        let mut galaxies: Vec<(usize, usize)> = vec![];
         let mut sum_distances = 0;
 
         for (i, row) in expanded.into_iter().enumerate() {
@@ -60,6 +63,37 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let empty_columns: BTreeSet<usize> = (0..self.0[0].len())
+            .filter(|&c| self.0.iter().all(|row| !row[c]))
+            .collect();
+        let empty_rows: BTreeSet<usize> = (0..self.0.len())
+            .filter(|&r| self.0[r].iter().all(|&x| !x))
+            .collect();
+
+        let mut galaxies: Vec<(usize, usize)> = vec![];
+        let mut sum_distances = 0;
+
+        for (i, row) in self.0.iter().enumerate() {
+            for j in row.iter().positions(|&x| x) {
+                for &(other_i, other_j) in &galaxies {
+                    let min_i = min(other_i, i);
+                    let max_i = max(other_i, i);
+                    let min_j = min(other_j, j);
+                    let max_j = max(other_j, j);
+                    // Manhattan distance, but written so I don't have to use signed arithmetic and abs().
+                    let length = max_i - min_i + max_j - min_j;
+                    log::debug!("found length {length}");
+
+                    let empty_rows_between = empty_rows.range(min_i..max_i).count();
+                    let empty_columns_between = empty_columns.range(min_j..max_j).count();
+
+                    sum_distances += length as u64
+                        + (empty_rows_between + empty_columns_between) as u64 * (1000000 - 1);
+                }
+                galaxies.push((i, j));
+            }
+        }
+
+        Ok(sum_distances)
     }
 }
