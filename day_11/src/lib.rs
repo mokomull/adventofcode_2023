@@ -88,7 +88,7 @@ impl Day for Solution {
                     let empty_columns_between = empty_columns.range(min_j..max_j).count();
 
                     sum_distances += length as u64
-                        + (empty_rows_between + empty_columns_between) as u64 * 1000000;
+                        + (empty_rows_between + empty_columns_between) as u64 * (1000000 - 1);
                 }
                 galaxies.push((i, j));
             }
