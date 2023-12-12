@@ -56,8 +56,9 @@ fn could_possibly_fit(springs: &[Spring], counts: &[u64]) -> bool {
         }
     }
 
-    // we haven't ruled it out...
-    return true;
+    // we got all the way to the end of springs, so make sure we counted exactly the right number of
+    // damaged springs
+    count == counts[0] && counts.len() == 1
 }
 
 fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
