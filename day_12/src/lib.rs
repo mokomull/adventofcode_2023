@@ -1,5 +1,7 @@
 use prelude::*;
 
+use rayon::prelude::*;
+
 #[derive(Clone, Debug, PartialEq)]
 enum Spring {
     Good,
@@ -120,7 +122,7 @@ impl Day for Solution {
     fn part2(&self) -> anyhow::Result<u64> {
         Ok(self
             .0
-            .iter()
+            .par_iter()
             .map(|(springs, counts)| {
                 let mut unfolded_springs = springs.clone();
                 let mut unfolded_counts = counts.to_vec();
