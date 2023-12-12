@@ -110,7 +110,11 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        Ok(self
+            .0
+            .iter()
+            .map(|(springs, counts)| count_options(springs, counts))
+            .sum())
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
