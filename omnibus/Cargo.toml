@@ -17,6 +17,7 @@ day_08 = { version = "0.1.0", path = "../day_08" }
 day_09 = { version = "0.1.0", path = "../day_09" }
 day_10 = { version = "0.1.0", path = "../day_10" }
 day_11 = { version = "0.1.0", path = "../day_11" }
+day_12 = { version = "0.1.0", path = "../day_12" }
 js-sys = { workspace = true }
 prelude = { version = "0.1.0", path = "../prelude" }
 serde-wasm-bindgen = "0.6.2"
