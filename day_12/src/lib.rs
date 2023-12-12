@@ -118,7 +118,21 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        Ok(self
+            .0
+            .iter()
+            .map(|(springs, counts)| {
+                let mut unfolded_springs = springs.clone();
+                let mut unfolded_counts = counts.to_vec();
+                for _ in 0..4 {
+                    // add four more copies.
+                    unfolded_springs.push(Unknown);
+                    unfolded_springs.extend_from_slice(springs);
+                    unfolded_counts.extend_from_slice(counts);
+                }
+                count_options(&unfolded_springs, &unfolded_counts)
+            })
+            .sum())
     }
 }
 
@@ -139,4 +153,18 @@ mod tests {
         assert_eq!(1, do_line("#.#.### 1,1,3"));
         assert_eq!(1, do_line("???.### 1,1,3"));
     }
+
+    #[test]
+    fn example() {
+        let solution = Solution::new(EXAMPLE);
+        assert_eq!(21, solution.part1().unwrap());
+        assert_eq!(525152, solution.part2().unwrap());
+    }
+
+    static EXAMPLE: &str = "???.### 1,1,3
+.??..??...?##. 1,1,3
+?#?#?#?#?#?#?#? 1,3,1,6
+????.#...#... 4,1,1
+????.######..#####. 1,6,5
+?###???????? 3,2,1";
 }
