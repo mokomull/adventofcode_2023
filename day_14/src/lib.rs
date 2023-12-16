@@ -41,7 +41,7 @@ impl Day for Solution {
 
         'outer: loop {
             for &(x, y) in new_round.iter() {
-                if x > 0 && !new_round.contains(&(x - 1, y)) && !self.cube.contains(&(x, y)) {
+                if x > 0 && !new_round.contains(&(x - 1, y)) && !self.cube.contains(&(x - 1, y)) {
                     // nothing above this rock, so move it up and try again
                     new_round.remove(&(x, y));
                     new_round.insert((x - 1, y));
@@ -55,7 +55,11 @@ impl Day for Solution {
 
         Ok(new_round
             .into_iter()
-            .map(|(x, _y)| self.max_x as u64 - x as u64 + 1)
+            .map(|(x, _y)| {
+                let this = self.max_x as u64 - x as u64 + 1;
+                log::debug!("round at {:?} contributed {}", (x, _y), this);
+                this
+            })
             .sum())
     }
 
