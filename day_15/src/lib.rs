@@ -11,15 +11,15 @@ fn hash(data: &[u8]) -> u8 {
     value
 }
 
-pub struct Solution();
+pub struct Solution(Vec<String>);
 
 impl Day for Solution {
     fn new(input: &str) -> Self {
-        Solution()
+        Solution(input.trim().split(',').map(|s| s.to_owned()).collect())
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        Ok(self.0.iter().map(|x| hash(x.as_bytes()) as u64).sum())
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
