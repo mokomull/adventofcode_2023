@@ -2,7 +2,7 @@ use prelude::*;
 
 use rayon::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 enum Spring {
     Good,
     Damaged,
@@ -63,11 +63,22 @@ fn could_possibly_fit(springs: &[Spring], counts: &[u64]) -> bool {
     count == counts[0] && counts.len() == 1
 }
 
-fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
+fn count_options(
+    memoized: &mut HashMap<Vec<Spring>, u64>,
+    springs: &[Spring],
+    counts: &[u64],
+) -> u64 {
     log::debug!("count_options: {springs:?} with counts {counts:?}");
 
-    if !could_possibly_fit(springs, counts) {
+    let springs = springs.to_vec();
+
+    if let Some(&x) = memoized.get(&springs) {
+        return x;
+    }
+
+    if !could_possibly_fit(&springs, &counts) {
         log::debug!("ruled it out");
+        memoized.insert(springs, 0);
         return 0;
     }
 
@@ -77,17 +88,19 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
         let mut count = 0;
 
         // try it with a Good spring
-        let mut next = springs.to_vec();
+        let mut next = springs.clone();
         next[i] = Good;
-        count += count_options(&next, counts);
+        count += count_options(memoized, &next, &counts);
 
         // and try it with a Bad spring
         next[i] = Damaged;
-        count += count_options(&next, counts);
+        count += count_options(memoized, &next, &counts);
 
+        memoized.insert(springs, count);
         return count;
     } else {
         // we had no unknowns, and we didn't rule it out, so this is the exactly-one way to arrange
+        memoized.insert(springs, 1);
         return 1;
     }
 }
@@ -115,7 +128,7 @@ impl Day for Solution {
         Ok(self
             .0
             .iter()
-            .map(|(springs, counts)| count_options(springs, counts))
+            .map(|(springs, counts)| count_options(&mut HashMap::new(), springs, counts))
             .sum())
     }
 
@@ -132,7 +145,7 @@ impl Day for Solution {
                     unfolded_springs.extend_from_slice(springs);
                     unfolded_counts.extend_from_slice(counts);
                 }
-                count_options(&unfolded_springs, &unfolded_counts)
+                count_options(&mut HashMap::new(), &unfolded_springs, &unfolded_counts)
             })
             .sum())
     }
@@ -149,7 +162,7 @@ mod tests {
         fn do_line(line: &str) -> u64 {
             let solution = Solution::new(line);
             let (springs, counts) = solution.0.into_iter().next().unwrap();
-            count_options(&springs, &counts)
+            count_options(&mut HashMap::new(), &springs, &counts)
         }
 
         assert_eq!(1, do_line("#.#.### 1,1,3"));
