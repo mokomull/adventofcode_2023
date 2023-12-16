@@ -42,30 +42,10 @@ impl Direction {
 
 pub struct Solution(Vec<Vec<Tile>>);
 
-impl Day for Solution {
-    fn new(input: &str) -> Self {
-        Solution(
-            input
-                .lines()
-                .map(|line| {
-                    line.bytes()
-                        .map(|c| match c {
-                            b'.' => Empty,
-                            b'|' => NS,
-                            b'-' => EW,
-                            b'\\' => NwSe,
-                            b'/' => NeSw,
-                            x => panic!("unexpected character {x:?}"),
-                        })
-                        .collect_vec()
-                })
-                .collect_vec(),
-        )
-    }
-
-    fn part1(&self) -> anyhow::Result<u64> {
+impl Solution {
+    fn count_from(&self, d: Direction, pos: (usize, usize)) -> u64 {
         let mut seen = HashSet::new();
-        let mut to_visit = VecDeque::from([(Right, (0, 0))]);
+        let mut to_visit = VecDeque::from([(d, pos)]);
 
         while let Some((d, (x, y))) = to_visit.pop_front() {
             if !seen.insert((d, (x, y))) {
@@ -120,14 +100,62 @@ impl Day for Solution {
             };
         }
 
-        Ok(seen
-            .into_iter()
+        seen.into_iter()
             .map(|(_dir, pos)| pos)
             .collect::<HashSet<_>>()
-            .len() as u64)
+            .len() as u64
+    }
+}
+
+impl Day for Solution {
+    fn new(input: &str) -> Self {
+        Solution(
+            input
+                .lines()
+                .map(|line| {
+                    line.bytes()
+                        .map(|c| match c {
+                            b'.' => Empty,
+                            b'|' => NS,
+                            b'-' => EW,
+                            b'\\' => NwSe,
+                            b'/' => NeSw,
+                            x => panic!("unexpected character {x:?}"),
+                        })
+                        .collect_vec()
+                })
+                .collect_vec(),
+        )
+    }
+
+    fn part1(&self) -> anyhow::Result<u64> {
+        Ok(self.count_from(Right, (0, 0)))
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let mut to_trace = vec![];
+
+        // top edge
+        for y in 0..self.0[0].len() {
+            to_trace.push((Down, (0, y)));
+        }
+        // left edge
+        for x in 0..self.0.len() {
+            to_trace.push((Right, (x, 0)));
+        }
+        // right edge
+        for x in 0..self.0.len() {
+            to_trace.push((Left, (x, self.0[0].len() - 1)))
+        }
+        // bottom edge
+        for y in 0..self.0[0].len() {
+            to_trace.push((Up, (self.0.len() - 1, y)))
+        }
+
+        to_trace
+            .into_iter()
+            .map(|(d, pos)| self.count_from(d, pos))
+            .max()
+            .ok_or_else(|| anyhow::anyhow!("we somehow found no edges to count at all"))
     }
 }
