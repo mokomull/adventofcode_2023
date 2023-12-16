@@ -32,7 +32,7 @@ fn upify(
 
 impl Solution {
     fn rotate_clockwise(self) -> Solution {
-        let translate = |(x, y)| unimplemented!();
+        let translate = |(x, y)| (y, self.max_x - x);
 
         Solution {
             round: self.round.into_iter().map(translate).collect(),
