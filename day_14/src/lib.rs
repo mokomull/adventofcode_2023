@@ -9,6 +9,27 @@ pub struct Solution {
     max_y: usize,
 }
 
+fn upify(
+    round: &HashSet<(usize, usize)>,
+    cube: &HashSet<(usize, usize)>,
+) -> HashSet<(usize, usize)> {
+    let mut new_round = round.clone();
+    'outer: loop {
+        for &(x, y) in new_round.iter() {
+            if x > 0 && !new_round.contains(&(x - 1, y)) && !cube.contains(&(x - 1, y)) {
+                // nothing above this rock, so move it up and try again
+                new_round.remove(&(x, y));
+                new_round.insert((x - 1, y));
+                continue 'outer;
+            }
+        }
+
+        // nothing moved, so we're done
+        break;
+    }
+    new_round
+}
+
 impl Day for Solution {
     fn new(input: &str) -> Self {
         let mut round = HashSet::new();
@@ -37,21 +58,7 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        let mut new_round = self.round.clone();
-
-        'outer: loop {
-            for &(x, y) in new_round.iter() {
-                if x > 0 && !new_round.contains(&(x - 1, y)) && !self.cube.contains(&(x - 1, y)) {
-                    // nothing above this rock, so move it up and try again
-                    new_round.remove(&(x, y));
-                    new_round.insert((x - 1, y));
-                    continue 'outer;
-                }
-            }
-
-            // nothing moved, so we're done
-            break;
-        }
+        let new_round = upify(&self.round, &self.cube);
 
         Ok(new_round
             .into_iter()
