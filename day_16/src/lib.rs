@@ -133,6 +133,29 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let mut to_trace = vec![];
+
+        // top edge
+        for y in 0..self.0[0].len() {
+            to_trace.push((Down, (0, y)));
+        }
+        // left edge
+        for x in 0..self.0.len() {
+            to_trace.push((Right, (x, 0)));
+        }
+        // right edge
+        for x in 0..self.0.len() {
+            to_trace.push((Left, (x, self.0[0].len() - 1)))
+        }
+        // bottom edge
+        for y in 0..self.0[0].len() {
+            to_trace.push((Up, (self.0.len() - 1, y)))
+        }
+
+        to_trace
+            .into_iter()
+            .map(|(d, pos)| self.count_from(d, pos))
+            .max()
+            .ok_or_else(|| anyhow::anyhow!("we somehow found no edges to count at all"))
     }
 }
