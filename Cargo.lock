@@ -143,6 +143,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "day_15"
+version = "0.1.0"
+dependencies = [
+ "prelude 0.1.0",
+]
+
+[[package]]
 name = "either"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -277,6 +284,7 @@ dependencies = [
  "day_10",
  "day_11",
  "day_12",
+ "day_15",
  "js-sys",
  "prelude 0.1.0",
  "serde-wasm-bindgen",
