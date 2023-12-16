@@ -30,6 +30,19 @@ fn upify(
     new_round
 }
 
+impl Solution {
+    fn rotate_clockwise(self) -> Solution {
+        let translate = |(x, y)| unimplemented!();
+
+        Solution {
+            round: self.round.into_iter().map(translate).collect(),
+            cube: self.cube.into_iter().map(translate).collect(),
+            max_x: self.max_y,
+            max_y: self.max_x,
+        }
+    }
+}
+
 impl Day for Solution {
     fn new(input: &str) -> Self {
         let mut round = HashSet::new();
