@@ -1,9 +1,6 @@
-use std::{fmt::Debug, sync::RwLock};
+use std::fmt::Debug;
 
 use prelude::*;
-
-use lazy_static::lazy_static;
-use rayon::prelude::*;
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
 enum Spring {
@@ -38,20 +35,16 @@ impl Debug for Spring {
     }
 }
 
-fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
+fn count_options(
+    memoized: &mut HashMap<(Vec<Spring>, Vec<u64>), u64>,
+    springs: &[Spring],
+    counts: &[u64],
+) -> u64 {
     log::debug!("count_options: {springs:?} with counts {counts:?}");
 
-    lazy_static! {
-        static ref MEMOIZED: RwLock<HashMap<(Vec<Spring>, Vec<u64>), u64>> =
-            RwLock::new(HashMap::new());
-    }
-
     let key = (springs.to_vec(), counts.to_vec());
-    {
-        let lock = MEMOIZED.read().unwrap();
-        if let Some(&res) = lock.get(&key) {
-            return res;
-        }
+    if let Some(&res) = memoized.get(&key) {
+        return res;
     }
 
     let result;
@@ -70,7 +63,7 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
     } else {
         // try to place the first run of damaged springs
         match springs[0] {
-            Good => result = count_options(&springs[1..], counts),
+            Good => result = count_options(memoized, &springs[1..], counts),
             Damaged => {
                 // then the first counts[0] springs must be damaged
                 if springs.len() < counts[0] as usize
@@ -80,11 +73,12 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
                     result = 0;
                 } else if springs.len() == counts[0] as usize {
                     // and we must either be at the end, or the next spring will have to be good
-                    result = count_options(&[], &counts[1..]);
+                    result = count_options(memoized, &[], &counts[1..]);
                 } else if springs[counts[0] as usize] == Damaged {
                     result = 0;
                 } else {
-                    result = count_options(&springs[(counts[0] as usize + 1)..], &counts[1..]);
+                    result =
+                        count_options(memoized, &springs[(counts[0] as usize + 1)..], &counts[1..]);
                 }
             }
             Unknown => {
@@ -93,22 +87,19 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
                 // try it with a Good spring
                 let mut next = springs.to_vec();
                 next[0] = Good;
-                count += count_options(&next, counts);
+                count += count_options(memoized, &next, counts);
 
                 // and try it with a Bad spring
                 next[0] = Damaged;
-                count += count_options(&next, counts);
+                count += count_options(memoized, &next, counts);
 
                 result = count;
             }
         }
     }
 
-    {
-        let mut lock = MEMOIZED.write().unwrap();
-        if let Some(old) = lock.insert(key, result) {
-            assert_eq!(old, result, "we managed to calculate something twice in parallel, but came up with different answers");
-        }
+    if let Some(old) = memoized.insert(key, result) {
+        assert_eq!(old, result, "we managed to calculate something twice in parallel, but came up with different answers");
     }
 
     result
@@ -134,17 +125,19 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
+        let mut memoized = HashMap::new();
         Ok(self
             .0
             .iter()
-            .map(|(springs, counts)| count_options(springs, counts))
+            .map(|(springs, counts)| count_options(&mut memoized, springs, counts))
             .sum())
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
+        let mut memoized = HashMap::new();
         Ok(self
             .0
-            .par_iter()
+            .iter()
             .map(|(springs, counts)| {
                 let mut unfolded_springs = springs.clone();
                 let mut unfolded_counts = counts.to_vec();
@@ -154,7 +147,7 @@ impl Day for Solution {
                     unfolded_springs.extend_from_slice(springs);
                     unfolded_counts.extend_from_slice(counts);
                 }
-                count_options(&unfolded_springs, &unfolded_counts)
+                count_options(&mut memoized, &unfolded_springs, &unfolded_counts)
             })
             .sum())
     }
@@ -171,7 +164,7 @@ mod tests {
         fn do_line(line: &str) -> u64 {
             let solution = Solution::new(line);
             let (springs, counts) = solution.0.into_iter().next().unwrap();
-            count_options(&springs, &counts)
+            count_options(&mut HashMap::new(), &springs, &counts)
         }
 
         assert_eq!(1, do_line("#.#.### 1,1,3"));
