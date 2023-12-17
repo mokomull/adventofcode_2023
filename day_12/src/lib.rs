@@ -61,6 +61,8 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
             // and we must either be at the end, or the next spring will have to be good
             if springs.len() == counts[0] as usize {
                 return count_options(&[], &counts[1..]);
+            } else if springs[counts[0] as usize] == Damaged {
+                return 0;
             }
 
             return count_options(&springs[(counts[0] as usize + 1)..], &counts[1..]);
