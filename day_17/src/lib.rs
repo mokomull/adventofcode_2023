@@ -76,7 +76,58 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let mut hit_empty = 0;
+        let shortest = self.shortest_paths(10, |ds| {
+            let mut res: BTreeSet<_> = [Left, Down, Up, Right].into();
+            if ds.is_empty() {
+                // this is a special case for the first block, because any direction goes.
+                assert_eq!(hit_empty, 0);
+                hit_empty += 1;
+                return res;
+            }
+
+            if ds.len() < 4
+                || ds
+                    .iter()
+                    .skip(ds.len() - 4)
+                    .any(|d| d != ds.last().unwrap())
+            {
+                // we haven't moved four spaces in the same direction, so we can *only* move in that direction.
+                return [*ds.last().unwrap()].into();
+            }
+
+            if ds.len() == 10 && ds.iter().all(|&d| d == ds[0]) {
+                res.remove(&ds[0]);
+            }
+            res.remove(&ds.last().unwrap().opposite());
+
+            res
+        });
+
+        let end = (self.0.len() - 1, self.0[0].len() - 1);
+
+        shortest
+            .into_iter()
+            .filter_map(|((coords, directions), cost)| {
+                if coords == end {
+                    // make sure that we moved four spaces in the same direction to get here
+                    if directions.len() >= 4
+                        && directions
+                            .iter()
+                            .skip(directions.len() - 4)
+                            .all(|d| d == directions.last().unwrap())
+                    {
+                        Some(cost)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .min()
+            .ok_or_else(|| anyhow::anyhow!("Did not find a path to the end"))
+            .map(|c| c as u64 + self.0[self.0.len() - 1][self.0[0].len() - 1] as u64)
     }
 }
 
@@ -84,10 +135,10 @@ impl Solution {
     fn shortest_paths<F>(
         &self,
         length_limit: usize,
-        directions_from_here: F,
+        mut directions_from_here: F,
     ) -> HashMap<((usize, usize), Vec<Direction>), i64>
     where
-        F: Fn(&[Direction]) -> BTreeSet<Direction>,
+        F: FnMut(&[Direction]) -> BTreeSet<Direction>,
     {
         struct Visit {
             coords: (usize, usize),
