@@ -1,10 +1,11 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::RwLock};
 
 use prelude::*;
 
+use lazy_static::lazy_static;
 use rayon::prelude::*;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Eq, Hash, PartialEq)]
 enum Spring {
     Good,
     Damaged,
@@ -40,56 +41,77 @@ impl Debug for Spring {
 fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
     log::debug!("count_options: {springs:?} with counts {counts:?}");
 
+    lazy_static! {
+        static ref MEMOIZED: RwLock<HashMap<(Vec<Spring>, Vec<u64>), u64>> =
+            RwLock::new(HashMap::new());
+    }
+
+    let key = (springs.to_vec(), counts.to_vec());
+    {
+        let lock = MEMOIZED.read().unwrap();
+        if let Some(&res) = lock.get(&key) {
+            return res;
+        }
+    }
+
+    let result;
     if springs.is_empty() && counts.is_empty() {
-        return 1;
+        result = 1;
     } else if springs.is_empty() {
-        return 0;
+        result = 0;
     } else if counts.is_empty() {
         if springs.iter().all(|s| s != &Damaged) {
             // the one way to place these is all Good
-            return 1;
+            result = 1;
+        } else {
+            // but if any of them are damaged, we have no more counts to give them!
+            result = 0;
         }
+    } else {
+        // try to place the first run of damaged springs
+        match springs[0] {
+            Good => result = count_options(&springs[1..], counts),
+            Damaged => {
+                // then the first counts[0] springs must be damaged
+                if springs.len() < counts[0] as usize
+                    || springs.iter().take(counts[0] as usize).any(|&s| s == Good)
+                {
+                    // not enough damaged/unknown springs to fit count[0], so zero options here.
+                    result = 0;
+                } else if springs.len() == counts[0] as usize {
+                    // and we must either be at the end, or the next spring will have to be good
+                    result = count_options(&[], &counts[1..]);
+                } else if springs[counts[0] as usize] == Damaged {
+                    result = 0;
+                } else {
+                    result = count_options(&springs[(counts[0] as usize + 1)..], &counts[1..]);
+                }
+            }
+            Unknown => {
+                let mut count = 0;
 
-        // but if any of them are damaged, we have no more counts to give them!
-        return 0;
+                // try it with a Good spring
+                let mut next = springs.to_vec();
+                next[0] = Good;
+                count += count_options(&next, counts);
+
+                // and try it with a Bad spring
+                next[0] = Damaged;
+                count += count_options(&next, counts);
+
+                result = count;
+            }
+        }
     }
 
-    // try to place the first run of damaged springs
-    match springs[0] {
-        Good => return count_options(&springs[1..], counts),
-        Damaged => {
-            // then the first counts[0] springs must be damaged
-            if springs.len() < counts[0] as usize
-                || springs.iter().take(counts[0] as usize).any(|&s| s == Good)
-            {
-                // not enough damaged/unknown springs to fit count[0], so zero options here.
-                return 0;
-            }
-
-            // and we must either be at the end, or the next spring will have to be good
-            if springs.len() == counts[0] as usize {
-                return count_options(&[], &counts[1..]);
-            } else if springs[counts[0] as usize] == Damaged {
-                return 0;
-            }
-
-            return count_options(&springs[(counts[0] as usize + 1)..], &counts[1..]);
-        }
-        Unknown => {
-            let mut count = 0;
-
-            // try it with a Good spring
-            let mut next = springs.to_vec();
-            next[0] = Good;
-            count += count_options(&next, counts);
-
-            // and try it with a Bad spring
-            next[0] = Damaged;
-            count += count_options(&next, counts);
-
-            return count;
+    {
+        let mut lock = MEMOIZED.write().unwrap();
+        if let Some(old) = lock.insert(key, result) {
+            assert_eq!(old, result, "we managed to calculate something twice in parallel, but came up with different answers");
         }
     }
+
+    result
 }
 
 pub struct Solution(Vec<(Vec<Spring>, Vec<u64>)>);
