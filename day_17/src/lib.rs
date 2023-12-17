@@ -49,7 +49,7 @@ impl Day for Solution {
 
         while let Some(v) = to_visit.pop_front() {
             if let Some(&c) = shortest.get(&v.coords) {
-                if c >= v.cost {
+                if c <= v.cost {
                     // TODO: maybe I need to actually consider the directions we could go from here,
                     // too; perhaps getting to coords from a different direction would end up
                     // cheaper overall?
