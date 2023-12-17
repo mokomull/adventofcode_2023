@@ -42,7 +42,15 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
 
     if springs.is_empty() && counts.is_empty() {
         return 1;
-    } else if springs.is_empty() || counts.is_empty() {
+    } else if springs.is_empty() {
+        return 0;
+    } else if counts.is_empty() {
+        if springs.iter().all(|s| s != &Damaged) {
+            // the one way to place these is all Good
+            return 1;
+        }
+
+        // but if any of them are damaged, we have no more counts to give them!
         return 0;
     }
 
