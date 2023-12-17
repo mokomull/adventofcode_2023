@@ -31,7 +31,7 @@ fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
     if springs.is_empty() && counts.is_empty() {
         return 1;
     } else if springs.is_empty() || counts.is_empty() {
-        return 1;
+        return 0;
     }
 
     // try to place the first run of damaged springs
