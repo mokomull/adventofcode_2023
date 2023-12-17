@@ -196,7 +196,7 @@ mod tests {
     fn personal_input() {
         let solution = Solution::new(INPUT);
         assert_eq!(8270, solution.part1().unwrap());
-        assert_eq!(3, solution.part2().unwrap());
+        assert_eq!(204640299929836, solution.part2().unwrap());
     }
 
     static EXAMPLE: &str = "???.### 1,1,3
