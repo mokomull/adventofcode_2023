@@ -14,6 +14,17 @@ enum Direction {
 
 use Direction::*;
 
+impl Direction {
+    fn opposite(&self) -> Direction {
+        match self {
+            Left => Right,
+            Right => Left,
+            Up => Down,
+            Down => Up,
+        }
+    }
+}
+
 impl Day for Solution {
     fn new(input: &str) -> Self {
         Solution(
@@ -83,6 +94,14 @@ impl Day for Solution {
                 {
                     // we can't keep going this way
                     continue;
+                }
+
+                if let Some(&d) = v.last_directions.last() {
+                    if direction == d.opposite() {
+                        // we can't make a U-turn ... I don't know why we'd ever end up doing so on
+                        // an otherwise shortest-path, but maybe this was a logic error?
+                        continue;
+                    }
                 }
 
                 let mut next_directions = v.last_directions.clone();
