@@ -1,8 +1,10 @@
+use std::fmt::Debug;
+
 use prelude::*;
 
 use rayon::prelude::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 enum Spring {
     Good,
     Damaged,
@@ -22,6 +24,16 @@ impl Spring {
                 x => panic!("unexpected spring {x:?}"),
             })
             .collect_vec()
+    }
+}
+
+impl Debug for Spring {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Good => write!(f, "."),
+            Self::Damaged => write!(f, "#"),
+            Self::Unknown => write!(f, "?"),
+        }
     }
 }
 
