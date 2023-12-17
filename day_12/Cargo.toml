@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+lazy_static = "1.4.0"
 prelude = { version = "0.1.0", path = "../prelude" }
+rayon = "1.8.0"
 
 [dev-dependencies]
 env_logger = "0.10.1"
