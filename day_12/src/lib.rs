@@ -132,6 +132,11 @@ mod tests {
 
         assert_eq!(1, do_line("#.#.### 1,1,3"));
         assert_eq!(1, do_line("???.### 1,1,3"));
+        assert_eq!(4, do_line(".??..??...?##. 1,1,3"));
+        assert_eq!(1, do_line("?#?#?#?#?#?#?#? 1,3,1,6"));
+        assert_eq!(1, do_line("????.#...#... 4,1,1"));
+        assert_eq!(4, do_line("????.######..#####. 1,6,5"));
+        assert_eq!(10, do_line("?###???????? 3,2,1"));
     }
 
     #[test]
