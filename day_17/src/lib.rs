@@ -49,13 +49,13 @@ impl Day for Solution {
         struct Visit {
             coords: (usize, usize),
             last_directions: Vec<Direction>,
-            cost: u64,
+            cost: i64,
         }
-        let mut shortest: HashMap<(usize, usize), u64> = HashMap::new();
+        let mut shortest: HashMap<(usize, usize), i64> = HashMap::new();
         let mut to_visit = VecDeque::from([Visit {
             coords: (0, 0),
             last_directions: vec![],
-            cost: 0,
+            cost: -(self.0[0][0] as i64),
         }]);
 
         while let Some(v) = to_visit.pop_front() {
@@ -87,7 +87,7 @@ impl Day for Solution {
                     )
                 });
 
-            let cost = v.cost + self.0[v.coords.0][v.coords.1] as u64;
+            let cost = v.cost + self.0[v.coords.0][v.coords.1] as i64;
 
             for (next, direction) in next {
                 if v.last_directions.len() == 3 && v.last_directions.iter().all(|&d| d == direction)
@@ -106,7 +106,7 @@ impl Day for Solution {
 
                 let mut next_directions = v.last_directions.clone();
                 next_directions.push(direction);
-                if next_directions.len() == 3 {
+                if next_directions.len() == 4 {
                     next_directions.remove(0);
                 }
 
@@ -121,7 +121,7 @@ impl Day for Solution {
         shortest
             .get(&(self.0.len() - 1, self.0[0].len() - 1))
             .ok_or_else(|| anyhow::anyhow!("Did not find a path to the end"))
-            .map(|&c| c + self.0[self.0.len() - 1][self.0[0].len() - 1] as u64)
+            .map(|&c| c as u64 + self.0[self.0.len() - 1][self.0[0].len() - 1] as u64)
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
