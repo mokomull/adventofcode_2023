@@ -1,10 +1,10 @@
-use std::collections::VecDeque;
+use std::collections::{BTreeSet, VecDeque};
 
 use prelude::*;
 
 pub struct Solution(Vec<Vec<u8>>);
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
 enum Direction {
     Left,
     Right,
@@ -46,12 +46,52 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
+        let shortest = self.shortest_paths(3, |ds| {
+            let mut res: BTreeSet<_> = [Left, Down, Up, Right].into();
+            if ds.len() == 3 && ds.iter().all(|&d| d == ds[0]) {
+                res.remove(&ds[0]);
+            }
+            res
+        });
+
+        let end = (self.0.len() - 1, self.0[0].len() - 1);
+
+        shortest
+            .into_iter()
+            .filter_map(
+                |((coords, _), cost)| {
+                    if coords == end {
+                        Some(cost)
+                    } else {
+                        None
+                    }
+                },
+            )
+            .min()
+            .ok_or_else(|| anyhow::anyhow!("Did not find a path to the end"))
+            .map(|c| c as u64 + self.0[self.0.len() - 1][self.0[0].len() - 1] as u64)
+    }
+
+    fn part2(&self) -> anyhow::Result<u64> {
+        anyhow::bail!("unimplemented")
+    }
+}
+
+impl Solution {
+    fn shortest_paths<F>(
+        &self,
+        length_limit: usize,
+        directions_from_here: F,
+    ) -> HashMap<((usize, usize), BTreeSet<Direction>), i64>
+    where
+        F: Fn(&[Direction]) -> BTreeSet<Direction>,
+    {
         struct Visit {
             coords: (usize, usize),
             last_directions: Vec<Direction>,
             cost: i64,
         }
-        let mut shortest: HashMap<((usize, usize), Vec<Direction>), i64> = HashMap::new();
+        let mut shortest: HashMap<((usize, usize), BTreeSet<Direction>), i64> = HashMap::new();
         let mut to_visit = VecDeque::from([Visit {
             coords: (0, 0),
             last_directions: vec![],
@@ -59,7 +99,8 @@ impl Day for Solution {
         }]);
 
         while let Some(v) = to_visit.pop_front() {
-            let key = (v.coords, v.last_directions.clone());
+            let possible_directions = directions_from_here(&v.last_directions);
+            let key = (v.coords, possible_directions.clone());
             if let Some(&c) = shortest.get(&key) {
                 if c <= v.cost {
                     continue;
@@ -88,9 +129,7 @@ impl Day for Solution {
             let cost = v.cost + self.0[v.coords.0][v.coords.1] as i64;
 
             for (next, direction) in next {
-                if v.last_directions.len() == 3 && v.last_directions.iter().all(|&d| d == direction)
-                {
-                    // we can't keep going this way
+                if !possible_directions.contains(&direction) {
                     continue;
                 }
 
@@ -104,7 +143,7 @@ impl Day for Solution {
 
                 let mut next_directions = v.last_directions.clone();
                 next_directions.push(direction);
-                if next_directions.len() == 4 {
+                if next_directions.len() > length_limit {
                     next_directions.remove(0);
                 }
 
@@ -116,25 +155,6 @@ impl Day for Solution {
             }
         }
 
-        let end = (self.0.len() - 1, self.0[0].len() - 1);
-
         shortest
-            .into_iter()
-            .filter_map(
-                |((coords, _), cost)| {
-                    if coords == end {
-                        Some(cost)
-                    } else {
-                        None
-                    }
-                },
-            )
-            .min()
-            .ok_or_else(|| anyhow::anyhow!("Did not find a path to the end"))
-            .map(|c| c as u64 + self.0[self.0.len() - 1][self.0[0].len() - 1] as u64)
-    }
-
-    fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
     }
 }
