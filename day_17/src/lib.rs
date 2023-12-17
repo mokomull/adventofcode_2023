@@ -85,7 +85,7 @@ impl Solution {
         &self,
         length_limit: usize,
         directions_from_here: F,
-    ) -> HashMap<((usize, usize), BTreeSet<Direction>), i64>
+    ) -> HashMap<((usize, usize), Vec<Direction>), i64>
     where
         F: Fn(&[Direction]) -> BTreeSet<Direction>,
     {
@@ -94,7 +94,7 @@ impl Solution {
             last_directions: Vec<Direction>,
             cost: i64,
         }
-        let mut shortest: HashMap<((usize, usize), BTreeSet<Direction>), i64> = HashMap::new();
+        let mut shortest: HashMap<((usize, usize), Vec<Direction>), i64> = HashMap::new();
         let mut to_visit = VecDeque::from([Visit {
             coords: (0, 0),
             last_directions: vec![],
@@ -103,7 +103,7 @@ impl Solution {
 
         while let Some(v) = to_visit.pop_front() {
             let possible_directions = directions_from_here(&v.last_directions);
-            let key = (v.coords, possible_directions.clone());
+            let key = (v.coords, v.last_directions.clone());
             if let Some(&c) = shortest.get(&key) {
                 if c <= v.cost {
                     continue;
