@@ -51,6 +51,9 @@ impl Day for Solution {
             if ds.len() == 3 && ds.iter().all(|&d| d == ds[0]) {
                 res.remove(&ds[0]);
             }
+            if let Some(last) = ds.last() {
+                res.remove(&last.opposite());
+            }
             res
         });
 
@@ -131,14 +134,6 @@ impl Solution {
             for (next, direction) in next {
                 if !possible_directions.contains(&direction) {
                     continue;
-                }
-
-                if let Some(&d) = v.last_directions.last() {
-                    if direction == d.opposite() {
-                        // we can't make a U-turn ... I don't know why we'd ever end up doing so on
-                        // an otherwise shortest-path, but maybe this was a logic error?
-                        continue;
-                    }
                 }
 
                 let mut next_directions = v.last_directions.clone();
