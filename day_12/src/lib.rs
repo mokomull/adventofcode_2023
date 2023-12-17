@@ -2,7 +2,7 @@ use prelude::*;
 
 use rayon::prelude::*;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum Spring {
     Good,
     Damaged,
@@ -25,70 +25,48 @@ impl Spring {
     }
 }
 
-fn could_possibly_fit(springs: &[Spring], counts: &[u64]) -> bool {
-    if springs.is_empty() && !counts.is_empty() {
-        return false;
-    }
-
-    if counts.is_empty() {
-        return springs.iter().all(|s| s != &Damaged);
-    }
-
-    let mut counting = false;
-    let mut count = 0;
-
-    for (i, spring) in springs.iter().enumerate() {
-        match spring {
-            Good if counting => {
-                // we've found the first sequence of damaged springs
-                if count != counts[0] {
-                    // we definitely have a mismatch!
-                    return false;
-                }
-
-                return could_possibly_fit(&springs[(i + 1)..], &counts[1..]);
-            }
-            Good => (),
-            Damaged => {
-                counting = true;
-                count += 1;
-            }
-            // it's not *in*consistent yet, so it could *possibly* fit.
-            Unknown => return true,
-        }
-    }
-
-    // we got all the way to the end of springs, so make sure we counted exactly the right number of
-    // damaged springs
-    count == counts[0] && counts.len() == 1
-}
-
 fn count_options(springs: &[Spring], counts: &[u64]) -> u64 {
     log::debug!("count_options: {springs:?} with counts {counts:?}");
 
-    if !could_possibly_fit(springs, counts) {
-        log::debug!("ruled it out");
-        return 0;
+    if springs.is_empty() && counts.is_empty() {
+        return 1;
+    } else if springs.is_empty() || counts.is_empty() {
+        return 1;
     }
 
-    let first_unknown = springs.iter().position(|s| s == &Unknown);
+    // try to place the first run of damaged springs
+    match springs[0] {
+        Good => return count_options(&springs[1..], counts),
+        Damaged => {
+            // then the first counts[0] springs must be damaged
+            if springs.len() < counts[0] as usize
+                || springs.iter().take(counts[0] as usize).any(|&s| s == Good)
+            {
+                // not enough damaged/unknown springs to fit count[0], so zero options here.
+                return 0;
+            }
 
-    if let Some(i) = first_unknown {
-        let mut count = 0;
+            // and we must either be at the end, or the next spring will have to be good
+            if springs.len() == counts[0] as usize {
+                return count_options(&[], &counts[1..]);
+            }
 
-        // try it with a Good spring
-        let mut next = springs.to_vec();
-        next[i] = Good;
-        count += count_options(&next, counts);
+            return count_options(&springs[(counts[0] as usize + 1)..], &counts[1..]);
+        }
+        Unknown => {
+            let mut count = 0;
 
-        // and try it with a Bad spring
-        next[i] = Damaged;
-        count += count_options(&next, counts);
+            // try it with a Good spring
+            let mut next = springs.to_vec();
+            next[0] = Good;
+            count += count_options(&next, counts);
 
-        return count;
-    } else {
-        // we had no unknowns, and we didn't rule it out, so this is the exactly-one way to arrange
-        return 1;
+            // and try it with a Bad spring
+            next[0] = Damaged;
+            count += count_options(&next, counts);
+
+            return count;
+        }
     }
 }
 
@@ -158,6 +136,8 @@ mod tests {
 
     #[test]
     fn example() {
+        let _ = env_logger::try_init();
+
         let solution = Solution::new(EXAMPLE);
         assert_eq!(21, solution.part1().unwrap());
         assert_eq!(525152, solution.part2().unwrap());
