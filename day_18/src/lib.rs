@@ -74,7 +74,7 @@ impl Day for Solution {
                 Up => current.1 -= i.count as i64,
                 Down => current.1 += i.count as i64,
                 Left => current.0 -= i.count as i64,
-                Right => current.0 -= i.count as i64,
+                Right => current.0 += i.count as i64,
             }
 
             vertices.push(current);
