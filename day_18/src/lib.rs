@@ -53,11 +53,11 @@ impl From<&str> for Plan {
     }
 }
 
-pub struct Solution();
+pub struct Solution(Vec<Plan>);
 
 impl Day for Solution {
     fn new(input: &str) -> Self {
-        Solution()
+        Solution(input.lines().map(Plan::from).collect_vec())
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
@@ -82,6 +82,6 @@ mod test {
                 count: 6,
                 color: (0x70, 0xc7, 0x10),
             }
-        )
+        );
     }
 }
