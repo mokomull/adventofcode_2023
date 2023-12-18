@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use prelude::*;
 
 #[derive(Debug, PartialEq)]
@@ -18,8 +20,9 @@ impl Pattern {
         'outer: for i in 1..(self.0[0].len() - 1) {
             log::debug!("trying vertical {i}");
             for row in &self.0 {
-                let left = row[..i].iter();
-                let right = row[i..].iter().rev();
+                let count = min(i, row.len() - i);
+                let left = row[(i - count)..i].iter();
+                let right = row[i..(i + count)].iter().rev();
                 for (a, b) in left.zip(right) {
                     if a != b {
                         log::debug!("stopping: {a:?} != {b:?}");
@@ -35,8 +38,9 @@ impl Pattern {
         }
 
         'outer: for i in 1..(self.0.len() - 1) {
-            let top = self.0[..i].iter();
-            let bottom = self.0[i..].iter().rev();
+            let count = min(i, self.0.len() - i);
+            let top = self.0[(i - count)..i].iter();
+            let bottom = self.0[i..(i + count)].iter().rev();
             for (a, b) in top.zip(bottom) {
                 if a != b {
                     continue 'outer;
