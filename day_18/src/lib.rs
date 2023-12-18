@@ -71,8 +71,8 @@ impl Day for Solution {
         for i in &self.0 {
             // Unlike pretty much all the rest of my solutions this year, this will use +y as the "up" axis, and +x as the "right" axis.
             match i.direction {
-                Up => current.1 -= i.count as i64,
-                Down => current.1 += i.count as i64,
+                Up => current.1 += i.count as i64,
+                Down => current.1 -= i.count as i64,
                 Left => current.0 -= i.count as i64,
                 Right => current.0 += i.count as i64,
             }
