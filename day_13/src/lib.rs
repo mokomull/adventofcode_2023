@@ -1,6 +1,6 @@
 use prelude::*;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 enum Tile {
     Ash,
     Rock,
@@ -16,13 +16,17 @@ impl Pattern {
         let mut horizontal_reflections = vec![];
 
         'outer: for i in 1..(self.0[0].len() - 1) {
+            log::debug!("trying vertical {i}");
             for row in &self.0 {
                 let left = row[..i].iter();
                 let right = row[i..].iter().rev();
                 for (a, b) in left.zip(right) {
                     if a != b {
+                        log::debug!("stopping: {a:?} != {b:?}");
                         // found a mismatch, so this ain't the mirror
                         continue 'outer;
+                    } else {
+                        log::debug!("same");
                     }
                 }
             }
