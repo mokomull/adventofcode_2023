@@ -33,7 +33,10 @@ impl From<&str> for Plan {
 
         let count = count.parse().expect("bad integer");
 
-        let color = color.as_bytes().try_into().expect("wrong number of hex digits");
+        let color = color
+            .as_bytes()
+            .try_into()
+            .expect("wrong number of hex digits");
 
         Plan {
             direction,
@@ -92,7 +95,27 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let plans = self
+            .0
+            .iter()
+            .map(|p| {
+                let direction = match p.color[5] {
+                    b'0' => Right,
+                    b'1' => Down,
+                    b'2' => Left,
+                    b'3' => Up,
+                    _ => anyhow::bail!("unexpected direction hex digit in the bagging area"),
+                };
+                let count = usize::from_str_radix(std::str::from_utf8(&p.color[..5])?, 16)?;
+
+                Ok(Plan {
+                    direction,
+                    count,
+                    color: [0; 6],
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Solution(plans).part1()
     }
 }
 
@@ -107,7 +130,7 @@ mod test {
             Plan {
                 direction: Right,
                 count: 6,
-                color: (0x70, 0xc7, 0x10),
+                color: *b"70c710",
             }
         );
     }
