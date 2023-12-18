@@ -18,18 +18,14 @@ impl Pattern {
         let mut horizontal_reflections = vec![];
 
         'outer: for i in 1..(self.0[0].len() - 1) {
-            log::debug!("trying vertical {i}");
             for row in &self.0 {
                 let count = min(i, row.len() - i);
                 let left = row[(i - count)..i].iter();
                 let right = row[i..(i + count)].iter().rev();
                 for (a, b) in left.zip(right) {
                     if a != b {
-                        log::debug!("stopping: {a:?} != {b:?}");
                         // found a mismatch, so this ain't the mirror
                         continue 'outer;
-                    } else {
-                        log::debug!("same");
                     }
                 }
             }
@@ -83,7 +79,16 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        Ok(self.0.iter().map(Pattern::part1).sum())
+        Ok(self
+            .0
+            .iter()
+            .enumerate()
+            .map(|(i, pattern)| {
+                let res = pattern.part1();
+                log::debug!("pattern {i} -> {res}");
+                res
+            })
+            .sum())
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
