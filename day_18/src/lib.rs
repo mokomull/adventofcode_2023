@@ -98,7 +98,7 @@ impl Day for Solution {
         assert_eq!(0, perimiter % 2);
 
         // interior plus boundary, in Pick's formula
-        Ok(area - 1 + (perimiter / 2))
+        Ok(area + 1 + (perimiter / 2))
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
