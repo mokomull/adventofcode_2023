@@ -88,7 +88,17 @@ impl Day for Solution {
             .map(|(&a, &b)| det(a, b))
             .sum::<i64>();
         assert_eq!(0, two_a.abs() % 2);
-        Ok(two_a.abs() as u64 / 2)
+
+        // Use Pick's theorem to determine the number of lattice points that are inside or on the
+        // boundary.
+        let area = two_a.abs() as u64 / 2;
+        let perimiter = self.0.iter().map(|p| p.count as u64).sum::<u64>();
+        // it doesn't necessarily follow that this must be true, but it certainly is for the
+        // example, and we're about to integer-divide-by-2.
+        assert_eq!(0, perimiter % 2);
+
+        // interior plus boundary, in Pick's formula
+        Ok(area - 1 + (perimiter / 2))
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
