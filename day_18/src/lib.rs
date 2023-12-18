@@ -53,6 +53,10 @@ impl From<&str> for Plan {
     }
 }
 
+fn det(a: (i64, i64), b: (i64, i64)) -> i64 {
+    a.0 * b.1 - a.1 * b.0
+}
+
 pub struct Solution(Vec<Plan>);
 
 impl Day for Solution {
@@ -61,7 +65,30 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented")
+        let mut current = (0, 0);
+        let mut vertices = vec![current];
+
+        for i in &self.0 {
+            // Unlike pretty much all the rest of my solutions this year, this will use +y as the "up" axis, and +x as the "right" axis.
+            match i.direction {
+                Up => current.1 -= i.count as i64,
+                Down => current.1 += i.count as i64,
+                Left => current.0 -= i.count as i64,
+                Right => current.0 -= i.count as i64,
+            }
+
+            vertices.push(current);
+        }
+
+        // Implement the "Shoelace Formula"
+        let two_a = vertices
+            .iter()
+            .chain([&vertices[0]])
+            .tuple_windows()
+            .map(|(&a, &b)| det(a, b))
+            .sum::<i64>();
+        assert_eq!(0, two_a.abs() % 2);
+        Ok(two_a.abs() as u64 / 2)
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
