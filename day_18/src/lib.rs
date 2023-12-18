@@ -13,7 +13,7 @@ use Direction::*;
 struct Plan {
     direction: Direction,
     count: usize,
-    color: (u8, u8, u8),
+    color: [u8; 6],
 }
 
 impl From<&str> for Plan {
@@ -33,22 +33,12 @@ impl From<&str> for Plan {
 
         let count = count.parse().expect("bad integer");
 
-        let color: [u8; 3] = color
-            .as_bytes()
-            .chunks(2)
-            .map(|chunk| {
-                let color = std::str::from_utf8(chunk).expect("somehow the color isn't UTF-8");
-                u8::from_str_radix(color, 16).expect("invalid hex")
-            })
-            .collect_vec()
-            .try_into()
-            .expect("wrong amount of data in color");
-        let [r, g, b] = color;
+        let color = color.as_bytes().try_into().expect("wrong number of hex digits");
 
         Plan {
             direction,
             count,
-            color: (r, g, b),
+            color,
         }
     }
 }
