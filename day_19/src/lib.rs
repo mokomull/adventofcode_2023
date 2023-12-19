@@ -50,23 +50,25 @@ impl From<&str> for Disposition {
 type Rule = (Criterion, Disposition);
 
 #[derive(Debug)]
-struct Rating {
-    x: u64,
-    m: u64,
-    a: u64,
-    s: u64,
+struct Fourple<T> {
+    x: T,
+    m: T,
+    a: T,
+    s: T,
 }
 
-impl Rating {
-    fn get(&self, category: &Category) -> u64 {
+impl<T> Fourple<T> {
+    fn get(&self, category: &Category) -> &T {
         match category {
-            X => self.x,
-            M => self.m,
-            A => self.a,
-            S => self.s,
+            X => &self.x,
+            M => &self.m,
+            A => &self.a,
+            S => &self.s,
         }
     }
 }
+
+type Rating = Fourple<u64>;
 
 pub struct Solution {
     rules: HashMap<String, Vec<Rule>>,
@@ -197,13 +199,13 @@ impl Solution {
                         break;
                     }
                     Gt(c, target) => {
-                        if rating.get(c) > *target {
+                        if rating.get(c) > target {
                             chosen = Some(disposition);
                             break;
                         }
                     }
                     Lt(c, target) => {
-                        if rating.get(c) < *target {
+                        if rating.get(c) < target {
                             chosen = Some(disposition);
                             break;
                         }
