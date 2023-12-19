@@ -43,6 +43,7 @@ common_day!(day_15, Day15, u64, u64);
 common_day!(day_16, Day16, u64, u64);
 common_day!(day_17, Day17, u64, u64);
 common_day!(day_18, Day18, u64, u64);
+common_day!(day_19, Day19, u64, u64);
 
 #[wasm_bindgen(start)]
 pub fn start() {
