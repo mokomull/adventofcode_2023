@@ -1,5 +1,7 @@
 use prelude::*;
 
+use num_integer::lcm;
+
 struct Node {
     left: String,
     right: String,
@@ -124,20 +126,62 @@ impl Solution {
             })
             .multi_cartesian_product();
 
+        let target_cycle = data
+            .values()
+            .map(|d| d.cycle_length as u64)
+            .reduce(lcm)
+            .unwrap();
+
         let res = remainders
             .filter_map(|steps_to_end| {
-                ring_algorithm::chinese_remainder_theorem(
+                chinese_remainder_theorem(
                     &steps_to_end,
                     &data.values().map(|d| d.cycle_length).collect_vec(),
                 )
             })
+            // and only the ones that are beyond the cycle start
+            .map(|res| {
+                let mut res = res as u64;
+                while data.values().any(|d| res < d.steps_to_cycle_start as u64) {
+                    res += target_cycle;
+                }
+                res
+            })
             .min()
             .unwrap();
 
-        assert!(data.values().all(|d| res > d.steps_to_cycle_start));
-
-        Ok(res as u64)
+        Ok(res)
     }
+}
+
+// Implement the CRT with the "sieving" mechanism described on Wikipedia:
+// https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Search_by_sieving
+fn chinese_remainder_theorem(rem: &[usize], moduli: &[usize]) -> Option<usize> {
+    dbg!((rem, moduli));
+    // the result won't be larger than m1 * m2 * ..., and if we get that high we have no result.
+    let limit = moduli.iter().product();
+    assert_eq!(rem.len(), moduli.len());
+
+    let mut current = rem[0];
+    let mut step = moduli[0];
+    for i in 1..rem.len() {
+        dbg!((current, step));
+        // while strictly not necessary, this is called in a context where we might have taken a
+        // while before we entered into a cycle.
+        let target = rem[i] % moduli[i];
+
+        while current % moduli[i] != target {
+            dbg!(current);
+            current += step;
+            if current > limit {
+                return None;
+            }
+        }
+
+        step *= moduli[i];
+    }
+
+    Some(current)
 }
 
 #[cfg(test)]
