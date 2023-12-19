@@ -17,6 +17,10 @@ impl Pattern {
         self.reflection_differences(0)
     }
 
+    fn part2(&self) -> u64 {
+        self.reflection_differences(1)
+    }
+
     fn reflection_differences(&self, needle: usize) -> u64 {
         let mut vertical_reflections = vec![];
         let mut horizontal_reflections = vec![];
@@ -123,7 +127,7 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented");
+        Ok(self.0.iter().map(Pattern::part2).sum())
     }
 }
 
