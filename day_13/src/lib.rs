@@ -17,9 +17,10 @@ impl Pattern {
         let mut vertical_reflections = vec![];
         let mut horizontal_reflections = vec![];
 
-        'outer: for i in 1..(self.0[0].len() - 1) {
+        'outer: for i in 1..self.0[0].len() {
             for row in &self.0 {
                 let count = min(i, row.len() - i);
+                assert_ne!(0, count, "we can't process a reflection of nothing");
                 let left = row[(i - count)..i].iter();
                 let right = row[i..(i + count)].iter().rev();
                 for (a, b) in left.zip(right) {
@@ -33,8 +34,9 @@ impl Pattern {
             vertical_reflections.push(i);
         }
 
-        'outer: for i in 1..(self.0.len() - 1) {
+        'outer: for i in 1..self.0.len() {
             let count = min(i, self.0.len() - i);
+            assert_ne!(0, count, "we can't process a reflection of nothing");
             let top = self.0[(i - count)..i].iter();
             let bottom = self.0[i..(i + count)].iter().rev();
             for (a, b) in top.zip(bottom) {
@@ -136,6 +138,6 @@ mod test {
 ..#######",
         );
 
-        assert_eq!(1700, solution.part1().unwrap());
+        assert_eq!(1600, solution.part1().unwrap());
     }
 }
