@@ -301,7 +301,7 @@ impl Solution {
                     // do nothing, but let the shrunken range continue down the list of rules
                 }
                 Next(s) => {
-                    res += self.count_accepted(&s, recur_possibilities)?;
+                    res += self.count_accepted(s, recur_possibilities)?;
                 }
             }
         }
@@ -320,12 +320,12 @@ fn shrink_range(
     if let Some(mut r) = intersected {
         // put the intersection where we expected, and return the inverse of the intersection
         std::mem::swap(&mut r, ranges);
-        return r;
+        r
     } else {
         // there was no intersection, so ranges becomes empty and everything that *was* in ranges should be returned
         let mut empty = AttributeRange::new();
         std::mem::swap(&mut empty, ranges);
-        return empty; // which is not empty anymore
+        empty // which is not empty anymore
     }
 }
 
