@@ -230,6 +230,7 @@ dependencies = [
 name = "day_19"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "prelude 0.1.0",
 ]
 
