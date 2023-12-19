@@ -85,7 +85,21 @@ impl Day for Solution {
             .enumerate()
             .map(|(i, pattern)| {
                 let res = pattern.part1();
-                log::debug!("pattern {i} -> {res}");
+                log::debug!(
+                    "pattern {i} -> {res}\n{}",
+                    pattern
+                        .0
+                        .iter()
+                        .map(|row| {
+                            row.iter()
+                                .map(|tile| match tile {
+                                    Ash => '.',
+                                    Rock => '#',
+                                })
+                                .join("")
+                        })
+                        .join("\n")
+                );
                 res
             })
             .sum())
@@ -93,5 +107,35 @@ impl Day for Solution {
 
     fn part2(&self) -> anyhow::Result<u64> {
         anyhow::bail!("unimplemented");
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn manual_bad_case() {
+        let solution = Solution::new(
+            ".#...#..#
+##...#...
+....#..#.
+....#..#.
+##...#...
+.#..##..#
+####...##
+##.#..#.#
+#.......#
+.#.....#.
+..#.##.##
+.#.#.....
+..###.#.#
+#..###.##
+.##....##
+..#######
+..#######",
+        );
+
+        assert_eq!(1700, solution.part1().unwrap());
     }
 }
