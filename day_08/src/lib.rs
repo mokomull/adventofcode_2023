@@ -1,5 +1,7 @@
 use prelude::*;
 
+use num_integer::lcm;
+
 struct Node {
     left: String,
     right: String,
@@ -105,30 +107,81 @@ impl Day for Solution {
 
         log::info!("collected data: {:?}", data);
 
-        let res;
-        // assuming that there's one cycle that only hits the end state once,
-        // let's use that as our step size for simplicity.
-        let only_once_in_cycle = data.values().find(|d| d.steps_to_end.len() == 1).unwrap();
+        // Assuming that we'll end up finding something well beyond every
+        // starting position's cycle, we're looking for a position that satifies
+        //
+        //   x = steps_to_end (mod cycle_length)
+        //
+        // note that steps_to_cycle_start is not in that equation, since
+        // steps_to_end started at *the beginning* rather than the beginning of
+        // the cycle.  It will simply be used to verify that we calculated a
+        // sufficiently large step count.
+        let remainders = data
+            .values()
+            .map(|d| {
+                d.steps_to_end
+                    .iter()
+                    .map(|&i| i % d.cycle_length)
+                    .collect_vec()
+            })
+            .multi_cartesian_product();
 
-        let mut i = only_once_in_cycle.steps_to_end[0] as u64;
-        loop {
-            log::debug!("looking at {}", i);
-            if data.values().all(|d| {
-                d.steps_to_end.iter().any(|&steps_to_end| {
-                    i % d.cycle_length as u64 == steps_to_end as u64 % d.cycle_length as u64
-                })
-            }) {
-                res = i;
-                break;
+        let target_cycle = data
+            .values()
+            .map(|d| d.cycle_length as u64)
+            .reduce(lcm)
+            .unwrap();
+
+        let res = remainders
+            .filter_map(|steps_to_end| {
+                chinese_remainder_theorem(
+                    &steps_to_end,
+                    &data.values().map(|d| d.cycle_length).collect_vec(),
+                )
+            })
+            // and make sure the number we come up with is all beyond the cycle-start
+            .map(|res| {
+                let mut res = res as u64;
+                while data.values().any(|d| res < d.steps_to_cycle_start as u64) {
+                    res += target_cycle;
+                }
+                res
+            })
+            .min()
+            .unwrap();
+
+        Ok(res)
+    }
+}
+
+// Implement the CRT with the "sieving" mechanism described on Wikipedia:
+// https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Search_by_sieving
+fn chinese_remainder_theorem(rem: &[usize], moduli: &[usize]) -> Option<usize> {
+    dbg!((rem, moduli));
+    // the result won't be larger than m1 * m2 * ..., and if we get that high we have no result.
+    let limit = moduli.iter().cloned().reduce(lcm).unwrap();
+    assert_eq!(rem.len(), moduli.len());
+
+    let mut current = rem[0];
+    let mut step = moduli[0];
+    for i in 1..rem.len() {
+        dbg!((current, step));
+        // while strictly not necessary, this is called in a context where we might have taken a
+        // while before we entered into a cycle.
+        let target = rem[i] % moduli[i];
+
+        while current % moduli[i] != target {
+            dbg!(current);
+            current += step;
+            if current > limit {
+                return None;
             }
-
-            i += only_once_in_cycle.cycle_length as u64;
         }
 
-        assert!(data.values().all(|d| res > d.steps_to_cycle_start as u64));
-
-        Ok(res as u64)
+        step = lcm(step, moduli[i]);
     }
+
+    Some(current)
 }
 
 #[cfg(test)]
