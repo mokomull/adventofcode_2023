@@ -1,4 +1,8 @@
+use std::ops::RangeInclusive;
+
 use prelude::*;
+
+use range_set::RangeSet;
 
 #[derive(Debug)]
 enum Category {
@@ -49,24 +53,36 @@ impl From<&str> for Disposition {
 
 type Rule = (Criterion, Disposition);
 
-#[derive(Debug)]
-struct Rating {
-    x: u64,
-    m: u64,
-    a: u64,
-    s: u64,
+#[derive(Clone, Debug)]
+struct Fourple<T> {
+    x: T,
+    m: T,
+    a: T,
+    s: T,
 }
 
-impl Rating {
-    fn get(&self, category: &Category) -> u64 {
+impl<T: Clone> Fourple<T> {
+    fn get(&self, category: &Category) -> &T {
         match category {
-            X => self.x,
-            M => self.m,
-            A => self.a,
-            S => self.s,
+            X => &self.x,
+            M => &self.m,
+            A => &self.a,
+            S => &self.s,
+        }
+    }
+
+    fn get_mut(&mut self, category: &Category) -> &mut T {
+        match category {
+            X => &mut self.x,
+            M => &mut self.m,
+            A => &mut self.a,
+            S => &mut self.s,
         }
     }
 }
+
+type Rating = Fourple<u64>;
+type AttributeRange = RangeSet<[RangeInclusive<u64>; 10]>;
 
 pub struct Solution {
     rules: HashMap<String, Vec<Rule>>,
@@ -172,7 +188,15 @@ impl Day for Solution {
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented");
+        self.count_accepted(
+            "in",
+            Fourple {
+                x: RangeSet::from_ranges(&[1..=4000]),
+                m: RangeSet::from_ranges(&[1..=4000]),
+                a: RangeSet::from_ranges(&[1..=4000]),
+                s: RangeSet::from_ranges(&[1..=4000]),
+            },
+        )
     }
 }
 
@@ -197,13 +221,13 @@ impl Solution {
                         break;
                     }
                     Gt(c, target) => {
-                        if rating.get(c) > *target {
+                        if rating.get(c) > target {
                             chosen = Some(disposition);
                             break;
                         }
                     }
                     Lt(c, target) => {
-                        if rating.get(c) < *target {
+                        if rating.get(c) < target {
                             chosen = Some(disposition);
                             break;
                         }
@@ -219,4 +243,100 @@ impl Solution {
             }
         }
     }
+
+    fn count_accepted(
+        &self,
+        state: &str,
+        mut possibilities: Fourple<AttributeRange>,
+    ) -> anyhow::Result<u64> {
+        let mut res = 0;
+
+        let next = self
+            .rules
+            .get(state)
+            .ok_or_else(|| anyhow::anyhow!("could not find state {state:?}"))?;
+
+        for (criterion, disposition) in next {
+            if [
+                &possibilities.x,
+                &possibilities.m,
+                &possibilities.a,
+                &possibilities.s,
+            ]
+            .into_iter()
+            .any(|r| r.is_empty())
+            {
+                // no amount of set-intersections is ever going to bring this back...
+                break;
+            }
+
+            let mut recur_possibilities = possibilities.clone();
+
+            match criterion {
+                Lt(cat, target) => {
+                    let recur_ranges = recur_possibilities.get_mut(cat);
+                    let continue_ranges = possibilities.get_mut(cat);
+                    let inverse = shrink_range(recur_ranges, 0..=(target - 1));
+                    *continue_ranges = inverse;
+                }
+                Gt(cat, target) => {
+                    let recur_ranges = recur_possibilities.get_mut(cat);
+                    let continue_ranges = possibilities.get_mut(cat);
+                    let inverse = shrink_range(recur_ranges, (target + 1)..=u64::MAX);
+                    *continue_ranges = inverse;
+                }
+                Unconditional => {
+                    // we will recur on everything that's possible so far, and then we're done.  Set
+                    // one (any one!) of the attribute ranges to a completely empty one.
+                    let mut empty = AttributeRange::new();
+                    std::mem::swap(&mut possibilities.x, &mut empty);
+                }
+            }
+
+            match disposition {
+                Accept => {
+                    res += count(&recur_possibilities);
+                }
+                Reject => {
+                    // do nothing, but let the shrunken range continue down the list of rules
+                }
+                Next(s) => {
+                    res += self.count_accepted(&s, recur_possibilities)?;
+                }
+            }
+        }
+
+        Ok(res)
+    }
+}
+
+// Intersects ranges with intersect_with, and returns ranges & !intersect_with
+fn shrink_range(
+    ranges: &mut AttributeRange,
+    intersect_with: RangeInclusive<u64>,
+) -> AttributeRange {
+    // since there's no intersect() function in RangeSet, but doing inserts and removals will *return* the ranges
+    let intersected = ranges.remove_range(intersect_with);
+    if let Some(mut r) = intersected {
+        // put the intersection where we expected, and return the inverse of the intersection
+        std::mem::swap(&mut r, ranges);
+        return r;
+    } else {
+        // there was no intersection, so ranges becomes empty and everything that *was* in ranges should be returned
+        let mut empty = AttributeRange::new();
+        std::mem::swap(&mut empty, ranges);
+        return empty; // which is not empty anymore
+    }
+}
+
+fn count(ranges: &Fourple<AttributeRange>) -> u64 {
+    [&ranges.x, &ranges.m, &ranges.a, &ranges.s]
+        .into_iter()
+        .map(|r| {
+            r.as_ref()
+                .iter()
+                .map(|std_range| std_range.end() - std_range.start() + 1)
+                .sum::<u64>()
+        })
+        .product()
 }
