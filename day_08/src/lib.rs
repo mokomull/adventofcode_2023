@@ -159,7 +159,7 @@ impl Solution {
 fn chinese_remainder_theorem(rem: &[usize], moduli: &[usize]) -> Option<usize> {
     dbg!((rem, moduli));
     // the result won't be larger than m1 * m2 * ..., and if we get that high we have no result.
-    let limit = moduli.iter().product();
+    let limit = moduli.iter().cloned().reduce(lcm).unwrap();
     assert_eq!(rem.len(), moduli.len());
 
     let mut current = rem[0];
@@ -178,7 +178,7 @@ fn chinese_remainder_theorem(rem: &[usize], moduli: &[usize]) -> Option<usize> {
             }
         }
 
-        step *= moduli[i];
+        step = lcm(step, moduli[i]);
     }
 
     Some(current)
