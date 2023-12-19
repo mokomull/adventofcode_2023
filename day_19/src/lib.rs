@@ -53,6 +53,17 @@ struct Rating {
     s: u64,
 }
 
+impl Rating {
+    fn get(&self, category: &Category) -> u64 {
+        match category {
+            X => self.x,
+            M => self.m,
+            A => self.a,
+            S => self.a,
+        }
+    }
+}
+
 pub struct Solution {
     rules: HashMap<String, Vec<Rule>>,
     ratings: Vec<Rating>,
@@ -137,10 +148,62 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        anyhow::bail!("unimplemented");
+        Ok(self
+            .ratings
+            .iter()
+            .filter_map(|r| match self.is_accepted(r) {
+                Err(e) => Some(Err(e)),
+                Ok(false) => None,
+                Ok(true) => Some(Ok(r.x + r.m + r.a + r.s)),
+            })
+            .collect::<Result<Vec<_>, _>>()?
+            .iter()
+            .sum())
     }
 
     fn part2(&self) -> anyhow::Result<u64> {
         anyhow::bail!("unimplemented");
+    }
+}
+
+impl Solution {
+    fn is_accepted(&self, rating: &Rating) -> anyhow::Result<bool> {
+        let mut wf_name = "in";
+
+        loop {
+            let workflow = self
+                .rules
+                .get(wf_name)
+                .ok_or_else(|| anyhow::anyhow!("could not find workflow {wf_name:?}"))?;
+
+            let mut chosen = None;
+            for (criterion, disposition) in workflow {
+                match criterion {
+                    Unconditional => {
+                        chosen = Some(disposition);
+                        break;
+                    }
+                    Gt(c, target) => {
+                        if rating.get(c) > *target {
+                            chosen = Some(disposition);
+                            break;
+                        }
+                    }
+                    Lt(c, target) => {
+                        if rating.get(c) < *target {
+                            chosen = Some(disposition);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            match chosen {
+                Some(Accept) => return Ok(true),
+                Some(Reject) => return Ok(false),
+                Some(Next(name)) => wf_name = name,
+                None => anyhow::bail!("none of the rules matched"),
+            }
+        }
     }
 }
