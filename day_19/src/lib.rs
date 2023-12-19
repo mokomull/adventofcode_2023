@@ -1,5 +1,6 @@
 use prelude::*;
 
+#[derive(Debug)]
 enum Category {
     X,
     M,
@@ -20,6 +21,7 @@ impl From<&str> for Category {
     }
 }
 
+#[derive(Debug)]
 enum Criterion {
     Unconditional,
     Gt(Category, u64),
@@ -27,6 +29,7 @@ enum Criterion {
 }
 use Criterion::*;
 
+#[derive(Debug)]
 enum Disposition {
     Next(String),
     Accept,
@@ -60,7 +63,7 @@ impl Rating {
             X => self.x,
             M => self.m,
             A => self.a,
-            S => self.a,
+            S => self.s,
         }
     }
 }
@@ -184,6 +187,7 @@ impl Solution {
                 .rules
                 .get(wf_name)
                 .ok_or_else(|| anyhow::anyhow!("could not find workflow {wf_name:?}"))?;
+            log::debug!("workflow is {workflow:?}");
 
             let mut chosen = None;
             for (criterion, disposition) in workflow {
