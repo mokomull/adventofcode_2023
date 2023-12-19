@@ -139,7 +139,7 @@ impl Solution {
                     &data.values().map(|d| d.cycle_length).collect_vec(),
                 )
             })
-            // and only the ones that are beyond the cycle start
+            // and make sure the number we come up with is all beyond the cycle-start
             .map(|res| {
                 let mut res = res as u64;
                 while data.values().any(|d| res < d.steps_to_cycle_start as u64) {
