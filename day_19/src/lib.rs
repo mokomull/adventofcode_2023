@@ -46,6 +46,7 @@ impl From<&str> for Disposition {
 
 type Rule = (Criterion, Disposition);
 
+#[derive(Debug)]
 struct Rating {
     x: u64,
     m: u64,
@@ -153,8 +154,14 @@ impl Day for Solution {
             .iter()
             .filter_map(|r| match self.is_accepted(r) {
                 Err(e) => Some(Err(e)),
-                Ok(false) => None,
-                Ok(true) => Some(Ok(r.x + r.m + r.a + r.s)),
+                Ok(false) => {
+                    log::debug!("rejected {r:?}");
+                    None
+                }
+                Ok(true) => {
+                    log::debug!("accepted {r:?}");
+                    Some(Ok(r.x + r.m + r.a + r.s))
+                }
             })
             .collect::<Result<Vec<_>, _>>()?
             .iter()
@@ -169,8 +176,10 @@ impl Day for Solution {
 impl Solution {
     fn is_accepted(&self, rating: &Rating) -> anyhow::Result<bool> {
         let mut wf_name = "in";
+        log::debug!("evaluating {rating:?}");
 
         loop {
+            log::debug!("looking at workflow {wf_name:?}");
             let workflow = self
                 .rules
                 .get(wf_name)
