@@ -87,7 +87,7 @@ impl Day for Solution {
             .lines()
             .map(|line| {
                 let (name, rest) = line.split_once('{').expect("could not find a {");
-                let rest = rest.strip_suffix("}").expect("could not find a }");
+                let rest = rest.strip_suffix('}').expect("could not find a }");
                 let rules = rest
                     .split(',')
                     .map(|rule| -> Rule {
