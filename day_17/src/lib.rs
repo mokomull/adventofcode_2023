@@ -46,14 +46,13 @@ impl Day for Solution {
     }
 
     fn part1(&self) -> anyhow::Result<u64> {
-        let shortest = self.shortest_paths(3, |ds| {
+        let shortest = self.shortest_paths(|d, c| {
             let mut res: BTreeSet<_> = [Left, Down, Up, Right].into();
-            if ds.len() == 3 && ds.iter().all(|&d| d == ds[0]) {
-                res.remove(&ds[0]);
+            if c == 3 {
+                res.remove(&d);
             }
-            if let Some(last) = ds.last() {
-                res.remove(&last.opposite());
-            }
+            res.remove(&d.opposite());
+
             res
         });
 
@@ -62,7 +61,7 @@ impl Day for Solution {
         shortest
             .into_iter()
             .filter_map(
-                |((coords, _), cost)| {
+                |((coords, _, _), cost)| {
                     if coords == end {
                         Some(cost)
                     } else {
@@ -77,29 +76,24 @@ impl Day for Solution {
 
     fn part2(&self) -> anyhow::Result<u64> {
         let mut hit_empty = 0;
-        let shortest = self.shortest_paths(10, |ds| {
+        let shortest = self.shortest_paths(|d, c| {
             let mut res: BTreeSet<_> = [Left, Down, Up, Right].into();
-            if ds.is_empty() {
+            if c == 0 {
                 // this is a special case for the first block, because any direction goes.
                 assert_eq!(hit_empty, 0);
                 hit_empty += 1;
                 return res;
             }
 
-            if ds.len() < 4
-                || ds
-                    .iter()
-                    .skip(ds.len() - 4)
-                    .any(|d| d != ds.last().unwrap())
-            {
+            if c < 4 {
                 // we haven't moved four spaces in the same direction, so we can *only* move in that direction.
-                return [*ds.last().unwrap()].into();
+                return [d].into();
             }
 
-            if ds.len() == 10 && ds.iter().all(|&d| d == ds[0]) {
-                res.remove(&ds[0]);
+            if c == 10 {
+                res.remove(&d);
             }
-            res.remove(&ds.last().unwrap().opposite());
+            res.remove(&d.opposite());
 
             res
         });
@@ -108,15 +102,10 @@ impl Day for Solution {
 
         shortest
             .into_iter()
-            .filter_map(|((coords, directions), cost)| {
+            .filter_map(|((coords, _, count), cost)| {
+                // make sure that we moved four spaces in the same direction to get here
                 if coords == end {
-                    // make sure that we moved four spaces in the same direction to get here
-                    if directions.len() >= 4
-                        && directions
-                            .iter()
-                            .skip(directions.len() - 4)
-                            .all(|d| d == directions.last().unwrap())
-                    {
+                    if count >= 4 {
                         Some(cost)
                     } else {
                         None
@@ -134,27 +123,29 @@ impl Day for Solution {
 impl Solution {
     fn shortest_paths<F>(
         &self,
-        length_limit: usize,
         mut directions_from_here: F,
-    ) -> HashMap<((usize, usize), Vec<Direction>), i64>
+    ) -> HashMap<((usize, usize), Direction, usize), i64>
     where
-        F: FnMut(&[Direction]) -> BTreeSet<Direction>,
+        F: FnMut(Direction, usize) -> BTreeSet<Direction>,
     {
         struct Visit {
             coords: (usize, usize),
-            last_directions: Vec<Direction>,
+            last_direction: Direction,
+            last_direction_count: usize,
             cost: i64,
         }
-        let mut shortest: HashMap<((usize, usize), Vec<Direction>), i64> = HashMap::new();
+        let mut shortest: HashMap<((usize, usize), Direction, usize), i64> = HashMap::new();
         let mut to_visit = VecDeque::from([Visit {
             coords: (0, 0),
-            last_directions: vec![],
+            last_direction: Right, // doesn't matter
+            last_direction_count: 0,
             cost: -(self.0[0][0] as i64),
         }]);
 
         while let Some(v) = to_visit.pop_front() {
-            let possible_directions = directions_from_here(&v.last_directions);
-            let key = (v.coords, v.last_directions.clone());
+            let possible_directions =
+                directions_from_here(v.last_direction, v.last_direction_count);
+            let key = (v.coords, v.last_direction, v.last_direction_count);
             if let Some(&c) = shortest.get(&key) {
                 if c <= v.cost {
                     continue;
@@ -187,15 +178,16 @@ impl Solution {
                     continue;
                 }
 
-                let mut next_directions = v.last_directions.clone();
-                next_directions.push(direction);
-                if next_directions.len() > length_limit {
-                    next_directions.remove(0);
-                }
+                let next_count = if direction == v.last_direction {
+                    v.last_direction_count + 1
+                } else {
+                    1
+                };
 
                 to_visit.push_back(Visit {
                     coords: next,
-                    last_directions: next_directions,
+                    last_direction: direction,
+                    last_direction_count: next_count,
                     cost,
                 })
             }
